@@ -1,0 +1,32 @@
+Folder PATH listing for volume Windows 
+Volume serial number is 7097-E7A3
+C:.
+¦   .gitignore
+¦   LICENSE
+¦   README.md
+¦   requirements.txt
+¦   structure.txt
+¦   
++---.binder
++---.github
+¦   +---workflows
++---artifacts
+¦   +---charts
+¦   +---decks
+¦   +---performance_reports
++---data
+¦   ¦   README_DATA.md
+¦   ¦   
+¦   +---raw
++---notebooks
+¦       .gitkeep
+¦       
++---sql
+¦       README_SQL.md
+¦       
++---src
+¦       __init__.py
+¦       
++---streamlit_apps
+        README_STREAMLIT.md
+        
