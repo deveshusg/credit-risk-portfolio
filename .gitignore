@@ -7,3 +7,7 @@ data/raw/
 *.pkl
 *.zip
 *.csv
+"venv/" 
+"__pycache__/" 
+".ipynb_checkpoints/" 
+".DS_Store" 
