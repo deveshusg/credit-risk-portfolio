@@ -1,0 +1,17 @@
+feature,raw_corr,log_corr,improved
+acc_open_past_24mths,0.1054,0.1019,False
+annual_inc,-0.0426,-0.0654,True
+avg_cur_bal,-0.0791,-0.0749,False
+bc_open_to_buy,-0.0811,-0.0781,False
+delinq_2yrs,0.018,0.0189,True
+fico_range_low,-0.1285,-0.1291,True
+inq_last_6mths,0.067,0.068,True
+mo_sin_old_rev_tl_op,-0.0524,-0.0637,True
+mort_acc,-0.0766,-0.0821,True
+num_actv_rev_tl,0.0714,0.0692,False
+open_acc,0.0294,0.0291,False
+pub_rec,0.0237,0.0281,True
+pub_rec_bankruptcies,0.0238,0.0242,True
+revol_bal,-0.0226,-0.0095,False
+tot_cur_bal,-0.0707,-0.0569,False
+total_acc,-0.0103,-0.0133,True

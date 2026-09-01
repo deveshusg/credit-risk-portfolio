@@ -1,0 +1,7 @@
+metric,value
+raw rows,"2,260,701"
+matured (finished-outcome) rows,"1,348,099"
+modeling window,2013-2017
+windowed rows,"1,195,879"
+bad rate (windowed),20.5%
+target definition,is_bad=1: Charged Off / Default; is_bad=0: Fully Paid

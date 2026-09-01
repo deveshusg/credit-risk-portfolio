@@ -1,0 +1,11 @@
+limitation,detail
+matured-only population,"912,602 still-open loans excluded (notebook 07) -- outcome genuinely unknown, not missing data"
+2013-2017 window,"chosen for reliability/censoring reasons (notebooks 06, 08); windowed vs excluded-years drift is low (notebook 10), so this isn't a representativeness concern"
+within-window drift,int_rate PSI=0.140 (moderate) across 2013-2017 -- year deserves consideration as a model feature or validation-split dimension (notebook 10)
+grade/int_rate are near-definitional,"reflect Lending Club's own risk model, not independent causal drivers (notebook 13)"
+small-grade precision,"grade G's bad-rate 95% CI is ~10x wider than grade C's, though still narrow in absolute terms (notebook 11)"
+geographic tail,smallest states have single-digit loan counts -- exclude from any per-state analysis (notebook 11)
+emp_title unusable as-is,"317,489 distinct values, 28.3% distinct-per-row -- needs occupation-taxonomy mapping before use (notebook 12)"
+multicollinearity,tot_cur_bal and avg_cur_bal show elevated VIF -- consider collapsing before a linear model (notebook 09)
+log transform not universal,"improved target correlation for 9 of 16 transformed fields, not all 16 (notebook 09)"
+recoveries not captured by is_bad,"charged-off loans average partial recovery -- is_bad is a pure PD target, not a loss-given-default one (notebook 07)"

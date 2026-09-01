@@ -1,0 +1,3 @@
+loan_status,n,avg_loan_amnt,avg_int_rate
+Charged Off,245378,15621.0,15.74
+Default,33,14592.0,15.86

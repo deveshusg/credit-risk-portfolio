@@ -1,0 +1,7 @@
+comparison,z,p_value,significant (p<0.05)
+A vs B,-86.26,0.0,True
+B vs C,-100.83,0.0,True
+C vs D,-65.35,0.0,True
+D vs E,-42.34,0.0,True
+E vs F,-20.38,0.0,True
+F vs G,-7.59,3.3084646133829665e-14,True

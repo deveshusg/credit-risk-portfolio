@@ -1,0 +1,10 @@
+finding,notebook,status
+grade bad-rate ordering,08,"formally tested (pairwise z-tests, all significant)"
+purpose vs is_bad association,08,"formally tested (chi-square, Bonferroni-robust)"
+"income gap, good vs bad loans",08,formally tested (Mann-Whitney U)
+2013-2017 window appropriateness,08,formally tested (sensitivity comparison)
+baseline model AUC,08,formally quantified (bootstrap 95% CI)
+cluster / anomaly risk differences,05,descriptive only -- no significance test run
+transform / VIF diagnostics,09,"diagnostic, not a hypothesis test"
+population drift (PSI),10,"conventional-threshold based, not a p-value test"
+dti / purpose quasi-causal checks,13,"stratification-based, not a randomized/identified causal estimate"

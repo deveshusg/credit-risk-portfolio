@@ -1,0 +1,5 @@
+loan_status,n
+Current,878317
+Late (31-120 days),21467
+In Grace Period,8436
+Late (16-30 days),4349
