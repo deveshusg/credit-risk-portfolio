@@ -1,0 +1,7 @@
+check,n_violations
+dti < 0,2
+annual_inc = 0,213
+revol_util < 0,0
+revol_util > 100,4571
+"fico_range_low out of [300,850]",0
+loan_amnt <= 0,0

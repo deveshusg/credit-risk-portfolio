@@ -1,0 +1,4 @@
+table,n_rows,n_distinct_id,duplicate_ids
+raw_mat,2260701,2260701,0
+matured,1348099,1348099,0
+windowed,1195879,1195879,0

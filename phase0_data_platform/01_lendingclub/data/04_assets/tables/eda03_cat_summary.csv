@@ -1,0 +1,8 @@
+column,n_distinct,mode,mode_share,pct_missing
+term,2, 36 months,0.7583794012604954,0.0
+grade,7,B,0.2901405576985632,0.0
+emp_length,11,10+ years,0.3337653725836811,0.05901851274250991
+home_ownership,5,MORTGAGE,0.49706366614013625,0.0
+verification_status,3,Source Verified,0.39842994149073613,0.0
+purpose,14,debt_consolidation,0.5871170912776292,0.0
+addr_state,51,CA,0.14376705335573248,0.0

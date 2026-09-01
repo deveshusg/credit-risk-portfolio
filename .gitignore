@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+
+# Secrets - never commit real credentials
+.env
+*.secrets.yaml
+!secrets.example.yaml
+
+# Data files - large, and often not allowed to be shared publicly.
+# This applies to every dataset folder (01_lendingclub, 02_fannie_mae, etc).
+# The small charts and tables in 04_assets are kept and ARE tracked by git.
+phase0_data_platform/*/data/01_raw/*
+!phase0_data_platform/*/data/01_raw/.gitkeep
+phase0_data_platform/*/data/02_interim/*
+!phase0_data_platform/*/data/02_interim/.gitkeep
+phase0_data_platform/*/data/03_processed/*
+!phase0_data_platform/*/data/03_processed/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,44 @@
+feature,bucket
+collection_recovery_fee,post-origination outcome field (correctly excluded as leakage)
+total_rec_prncp,post-origination outcome field (correctly excluded as leakage)
+last_pymnt_amnt,post-origination outcome field (correctly excluded as leakage)
+total_pymnt,post-origination outcome field (correctly excluded as leakage)
+total_pymnt_inv,post-origination outcome field (correctly excluded as leakage)
+hardship_dpd,post-origination outcome field (correctly excluded as leakage)
+sec_app_fico_range_low,"co-borrower field (mostly N/A for solo loans, out of scope, not leakage)"
+sec_app_fico_range_high,"co-borrower field (mostly N/A for solo loans, out of scope, not leakage)"
+orig_projected_additional_accrued_interest,unexplained -- genuine origination-time signal not currently used
+hardship_amount,post-origination outcome field (correctly excluded as leakage)
+hardship_payoff_balance_amount,post-origination outcome field (correctly excluded as leakage)
+dti_joint,"co-borrower field (mostly N/A for solo loans, out of scope, not leakage)"
+sec_app_mths_since_last_major_derog,"co-borrower field (mostly N/A for solo loans, out of scope, not leakage)"
+sec_app_inq_last_6mths,"co-borrower field (mostly N/A for solo loans, out of scope, not leakage)"
+sec_app_mort_acc,"co-borrower field (mostly N/A for solo loans, out of scope, not leakage)"
+total_rec_late_fee,post-origination outcome field (correctly excluded as leakage)
+sec_app_revol_util,"co-borrower field (mostly N/A for solo loans, out of scope, not leakage)"
+fico_range_high,redundant with a retained column
+sec_app_collections_12_mths_ex_med,"co-borrower field (mostly N/A for solo loans, out of scope, not leakage)"
+num_tl_op_past_12m,unexplained -- genuine origination-time signal not currently used
+annual_inc_joint,"co-borrower field (mostly N/A for solo loans, out of scope, not leakage)"
+all_util,unexplained -- genuine origination-time signal not currently used
+open_rv_24m,unexplained -- genuine origination-time signal not currently used
+hardship_last_payment_amount,post-origination outcome field (correctly excluded as leakage)
+emp_title,unexplained -- genuine origination-time signal not currently used
+tot_hi_cred_lim,redundant with a retained column
+total_bc_limit,redundant with a retained column
+sec_app_chargeoff_within_12_mths,"co-borrower field (mostly N/A for solo loans, out of scope, not leakage)"
+num_rev_tl_bal_gt_0,unexplained -- genuine origination-time signal not currently used
+open_rv_12m,unexplained -- genuine origination-time signal not currently used
+percent_bc_gt_75,unexplained -- genuine origination-time signal not currently used
+open_acc_6m,unexplained -- genuine origination-time signal not currently used
+bc_util,unexplained -- genuine origination-time signal not currently used
+funded_amnt,redundant with a retained column
+funded_amnt_inv,redundant with a retained column
+inq_last_12m,post-origination outcome field (correctly excluded as leakage)
+mo_sin_rcnt_tl,unexplained -- genuine origination-time signal not currently used
+total_rec_int,post-origination outcome field (correctly excluded as leakage)
+mths_since_recent_inq,unexplained -- genuine origination-time signal not currently used
+mo_sin_rcnt_rev_tl_op,unexplained -- genuine origination-time signal not currently used
+mths_since_recent_bc,unexplained -- genuine origination-time signal not currently used
+total_rev_hi_lim,redundant with a retained column
+open_il_12m,unexplained -- genuine origination-time signal not currently used
