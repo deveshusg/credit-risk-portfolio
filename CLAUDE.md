@@ -16,6 +16,15 @@ validation, and stress testing. This repo is where that course material
 gets applied end-to-end against a real, public dataset (Lending Club
 accepted loans, 2007-2018) to produce a portfolio-quality body of work.
 
+**A complete, exhaustive record of this whole project — every standing rule,
+every notebook's full history and decisions, the full Peaks2Tails course
+synthesis, style conventions, git setup, open items, technical gotchas, and
+a verbatim log of every major user instruction — lives in
+`docs/PROJECT_MASTER_CONTEXT.md`.** Read that file for anything this
+shorter `CLAUDE.md` doesn't cover in enough depth; it's the long version of
+this file, written specifically so a new Claude Code session (or a human)
+can resume this project with full context.
+
 **A full knowledge base distilled from the entire course is checked in at
 `docs/Peaks2Tails_Knowledge_Base.md`.** Read it before doing any modeling
 work (PD, LGD, EAD, IFRS 9 ECL, segmentation, validation, etc.) — it's the
