@@ -1,0 +1,153 @@
+column,inferred_type,domain_type,action,treatment_detail,basis,rationale,status,last_updated_by
+acc_now_delinq,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+acc_open_past_24mths,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+addr_state,categorical/text,categorical,keep,keep as text / category,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+all_util,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+annual_inc,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+annual_inc_joint,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+application_type,categorical/text,categorical,keep,keep as text / category,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+avg_cur_bal,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+bc_open_to_buy,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+bc_util,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+chargeoff_within_12_mths,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+collection_recovery_fee,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+collections_12_mths_ex_med,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+debt_settlement_flag,categorical/text,categorical,exclude_from_pd_features,keep the column; not a PD input; 'is it filled in?' can help LGD / collections work,eda01 Cell 7 (bad rate by whether the field is filled),only populated after a loan starts failing -- not known at application time,proposed,eda01
+debt_settlement_flag_date,categorical/text,categorical,keep,keep as text / category,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+deferral_term,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+delinq_2yrs,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+delinq_amnt,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+desc,categorical/text,categorical,keep,keep as text / category,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+disbursement_method,categorical/text,categorical,keep,keep as text / category,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+dti,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+dti_joint,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+earliest_cr_line,categorical/text,date,transform,parse 'Mon-YYYY' text -> DATE (format '%b-%Y'); no day part,eda01 Cell 4 (looked at raw values),"a real date, just stored as month-year text",proposed,eda01
+emp_length,categorical/text,time_period,transform,"map '< 1 year' -> 0, '10+ years' -> 10, 'N years' -> N; cast INT; decide missing handling in 03_data_cleaning",eda01 Cell 4,duration text with open-ended buckets at both ends,proposed,eda01
+emp_title,categorical/text,categorical,keep,keep as text / category,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+fico_range_high,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+fico_range_low,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+funded_amnt,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+funded_amnt_inv,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+grade,categorical/text,categorical,keep,keep as text / category,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+hardship_amount,numeric,numeric,exclude_from_pd_features,keep the column; not a PD input; 'is it filled in?' can help LGD / collections work,eda01 Cell 7 (bad rate by whether the field is filled),only populated after a loan starts failing -- not known at application time,proposed,eda01
+hardship_dpd,numeric,numeric,exclude_from_pd_features,keep the column; not a PD input; 'is it filled in?' can help LGD / collections work,eda01 Cell 7 (bad rate by whether the field is filled),only populated after a loan starts failing -- not known at application time,proposed,eda01
+hardship_end_date,categorical/text,categorical,exclude_from_pd_features,keep the column; not a PD input; 'is it filled in?' can help LGD / collections work,eda01 Cell 7 (bad rate by whether the field is filled),only populated after a loan starts failing -- not known at application time,proposed,eda01
+hardship_flag,categorical/text,categorical,exclude_from_pd_features,keep the column; not a PD input; 'is it filled in?' can help LGD / collections work,eda01 Cell 7 (bad rate by whether the field is filled),only populated after a loan starts failing -- not known at application time,proposed,eda01
+hardship_last_payment_amount,numeric,numeric,exclude_from_pd_features,keep the column; not a PD input; 'is it filled in?' can help LGD / collections work,eda01 Cell 7 (bad rate by whether the field is filled),only populated after a loan starts failing -- not known at application time,proposed,eda01
+hardship_length,numeric,numeric,exclude_from_pd_features,keep the column; not a PD input; 'is it filled in?' can help LGD / collections work,eda01 Cell 7 (bad rate by whether the field is filled),only populated after a loan starts failing -- not known at application time,proposed,eda01
+hardship_loan_status,categorical/text,categorical,exclude_from_pd_features,keep the column; not a PD input; 'is it filled in?' can help LGD / collections work,eda01 Cell 7 (bad rate by whether the field is filled),only populated after a loan starts failing -- not known at application time,proposed,eda01
+hardship_payoff_balance_amount,numeric,numeric,exclude_from_pd_features,keep the column; not a PD input; 'is it filled in?' can help LGD / collections work,eda01 Cell 7 (bad rate by whether the field is filled),only populated after a loan starts failing -- not known at application time,proposed,eda01
+hardship_reason,categorical/text,categorical,exclude_from_pd_features,keep the column; not a PD input; 'is it filled in?' can help LGD / collections work,eda01 Cell 7 (bad rate by whether the field is filled),only populated after a loan starts failing -- not known at application time,proposed,eda01
+hardship_start_date,categorical/text,categorical,exclude_from_pd_features,keep the column; not a PD input; 'is it filled in?' can help LGD / collections work,eda01 Cell 7 (bad rate by whether the field is filled),only populated after a loan starts failing -- not known at application time,proposed,eda01
+hardship_status,categorical/text,categorical,exclude_from_pd_features,keep the column; not a PD input; 'is it filled in?' can help LGD / collections work,eda01 Cell 7 (bad rate by whether the field is filled),only populated after a loan starts failing -- not known at application time,proposed,eda01
+hardship_type,categorical/text,categorical,exclude_from_pd_features,keep the column; not a PD input; 'is it filled in?' can help LGD / collections work,eda01 Cell 7 (bad rate by whether the field is filled),only populated after a loan starts failing -- not known at application time,proposed,eda01
+home_ownership,categorical/text,categorical,keep,keep as text / category,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+id,numeric,numeric,keep,keep as the row identifier; never use as a model feature,eda01 Cell 5 (eda01_ambiguous_overrides.csv),a loan ID -- looks numeric but it is only a label,proposed,eda01
+il_util,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+initial_list_status,categorical/text,categorical,keep,keep as text / category,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+inq_fi,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+inq_last_12m,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+inq_last_6mths,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+installment,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+int_rate,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+is_bad,numeric,numeric,keep,"this is the target we predict, not an input",ingestion notebook,defined as the 0/1 default target,proposed,eda01
+issue_d,categorical/text,date,transform,parse 'Mon-YYYY' text -> DATE (format '%b-%Y'); no day part,eda01 Cell 4 (looked at raw values),"a real date, just stored as month-year text",proposed,eda01
+last_credit_pull_d,categorical/text,date,transform,parse 'Mon-YYYY' text -> DATE (format '%b-%Y'); no day part,eda01 Cell 4 (looked at raw values),"a real date, just stored as month-year text",proposed,eda01
+last_fico_range_high,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+last_fico_range_low,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+last_pymnt_amnt,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+last_pymnt_d,categorical/text,date,transform,parse 'Mon-YYYY' text -> DATE (format '%b-%Y'); no day part,eda01 Cell 4 (looked at raw values),"a real date, just stored as month-year text",proposed,eda01
+loan_amnt,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+loan_status,categorical/text,categorical,keep,keep as text / category,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+max_bal_bc,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+member_id,categorical/text,categorical,drop,drop the column,eda01 Cell 6 (SUMMARIZE null %),100% empty -- removed by Lending Club before publishing,proposed,eda01
+mo_sin_old_il_acct,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+mo_sin_old_rev_tl_op,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+mo_sin_rcnt_rev_tl_op,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+mo_sin_rcnt_tl,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+mort_acc,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+mths_since_last_delinq,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+mths_since_last_major_derog,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+mths_since_last_record,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+mths_since_rcnt_il,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+mths_since_recent_bc,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+mths_since_recent_bc_dlq,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+mths_since_recent_inq,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+mths_since_recent_revol_delinq,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+next_pymnt_d,categorical/text,categorical,drop,drop the column,eda01 Cell 6,100% empty in windowed -- finished loans have no next payment,proposed,eda01
+num_accts_ever_120_pd,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+num_actv_bc_tl,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+num_actv_rev_tl,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+num_bc_sats,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+num_bc_tl,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+num_il_tl,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+num_op_rev_tl,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+num_rev_accts,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+num_rev_tl_bal_gt_0,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+num_sats,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+num_tl_120dpd_2m,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+num_tl_30dpd,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+num_tl_90g_dpd_24m,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+num_tl_op_past_12m,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+open_acc,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+open_acc_6m,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+open_act_il,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+open_il_12m,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+open_il_24m,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+open_rv_12m,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+open_rv_24m,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+orig_projected_additional_accrued_interest,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+out_prncp,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+out_prncp_inv,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+payment_plan_start_date,categorical/text,categorical,keep,keep as text / category,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+pct_tl_nvr_dlq,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+percent_bc_gt_75,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+policy_code,numeric,numeric,review,"treat as a category; only 1 distinct value here, so it may add nothing",eda01 Cell 5 + Cell 3,"a code, not a measured quantity",proposed,eda01
+pub_rec,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+pub_rec_bankruptcies,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+purpose,categorical/text,categorical,keep,keep as text / category,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+pymnt_plan,categorical/text,categorical,keep,keep as text / category,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+recoveries,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+revol_bal,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+revol_bal_joint,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+revol_util,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+sec_app_chargeoff_within_12_mths,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+sec_app_collections_12_mths_ex_med,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+sec_app_earliest_cr_line,categorical/text,date,transform,parse 'Mon-YYYY' text -> DATE (format '%b-%Y'); no day part,eda01 Cell 4 (looked at raw values),"a real date, just stored as month-year text",proposed,eda01
+sec_app_fico_range_high,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+sec_app_fico_range_low,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+sec_app_inq_last_6mths,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+sec_app_mort_acc,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+sec_app_mths_since_last_major_derog,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+sec_app_num_rev_accts,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+sec_app_open_acc,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+sec_app_open_act_il,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+sec_app_revol_util,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+settlement_amount,numeric,numeric,exclude_from_pd_features,keep the column; not a PD input; 'is it filled in?' can help LGD / collections work,eda01 Cell 7 (bad rate by whether the field is filled),only populated after a loan starts failing -- not known at application time,proposed,eda01
+settlement_date,categorical/text,categorical,exclude_from_pd_features,keep the column; not a PD input; 'is it filled in?' can help LGD / collections work,eda01 Cell 7 (bad rate by whether the field is filled),only populated after a loan starts failing -- not known at application time,proposed,eda01
+settlement_percentage,numeric,numeric,exclude_from_pd_features,keep the column; not a PD input; 'is it filled in?' can help LGD / collections work,eda01 Cell 7 (bad rate by whether the field is filled),only populated after a loan starts failing -- not known at application time,proposed,eda01
+settlement_status,categorical/text,categorical,exclude_from_pd_features,keep the column; not a PD input; 'is it filled in?' can help LGD / collections work,eda01 Cell 7 (bad rate by whether the field is filled),only populated after a loan starts failing -- not known at application time,proposed,eda01
+settlement_term,numeric,numeric,exclude_from_pd_features,keep the column; not a PD input; 'is it filled in?' can help LGD / collections work,eda01 Cell 7 (bad rate by whether the field is filled),only populated after a loan starts failing -- not known at application time,proposed,eda01
+sub_grade,categorical/text,categorical,keep,keep as text / category,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+tax_liens,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+term,categorical/text,time_period,transform,"trim spaces, take the number of months (36 or 60), cast INT",eda01 Cell 4,duration stored as text like ' 36 months',proposed,eda01
+title,categorical/text,categorical,keep,keep as text / category,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+tot_coll_amt,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+tot_cur_bal,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+tot_hi_cred_lim,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+total_acc,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+total_bal_ex_mort,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+total_bal_il,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+total_bc_limit,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+total_cu_tl,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+total_il_high_credit_limit,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+total_pymnt,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+total_pymnt_inv,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+total_rec_int,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+total_rec_late_fee,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+total_rec_prncp,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+total_rev_hi_lim,numeric,numeric,clean,cast text -> DOUBLE,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+url,categorical/text,categorical,keep,keep as text / category,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+verification_status,categorical/text,categorical,keep,keep as text / category,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+verification_status_joint,categorical/text,categorical,keep,keep as text / category,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
+zip_code,categorical/text,categorical,keep,keep as text / category,eda01 Cell 2 (numeric cast-rate test),loaded as text on purpose; the cast-rate test decides the real type,proposed,eda01
