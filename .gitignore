@@ -22,3 +22,7 @@ phase0_data_platform/*/data/03_processed/*
 # OS
 .DS_Store
 Thumbs.db
+
+# Kept local -- not pushed to GitHub
+CLAUDE.md
+docs/
