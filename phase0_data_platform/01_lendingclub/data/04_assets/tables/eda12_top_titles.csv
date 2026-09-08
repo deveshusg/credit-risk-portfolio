@@ -1,11 +1,11 @@
-emp_title,n
-Teacher,20351
-Manager,18480
-Owner,9723
-Registered Nurse,8408
-RN,8184
-Supervisor,7927
-Sales,7119
-Driver,7059
-Project Manager,6090
-Office Manager,5287
+title,n,bad_rate
+Debt consolidation,627386,0.2210090757524076
+Credit card refinancing,237227,0.17774115088080195
+Home improvement,70128,0.18655886379192335
+Other,60737,0.2186970051204373
+Major purchase,22041,0.20148813574701693
+Medical expenses,12421,0.22639078979148217
+Business,10769,0.30949948927477017
+Car financing,10370,0.1609450337512054
+Debt Consolidation,9360,0.14316239316239315
+Moving and relocation,7394,0.2481741952934812

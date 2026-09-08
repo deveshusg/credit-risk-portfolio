@@ -1,0 +1,9 @@
+open_item
+"emp_length needs a dedicated text-parsing rule ('10+ years' style) before it can be used numerically -- flagged in 3.1, 4.1, 4.7, 5.1, 9.3."
+"revol_util values above 100% (4,571 loans, 3.4) need a documented capping rule, not a silent fix."
+"Missingness-as-signal fields from 2.6 (e.g. avg_cur_bal, title, emp_title) are candidates for an explicit _was_missing flag."
+"annual_inc and revol_bal need a log1p transform or winsorization decision (9.1, 9.2) before modeling -- both work, pick one."
+"loan_amnt/funded_amnt and fico_range_low/fico_range_high are redundant pairs (2.3, 4.4, 9.3) -- keep one of each."
+"emp_title and zip_code are high-cardinality (12.1) and need grouping or exclusion, not plain one-hot encoding."
+PSI-flagged fields from Section 10 should be re-checked once a production scoring window is defined.
+The vintage-window bias check (11.2) should be repeated whenever the analysis window changes.

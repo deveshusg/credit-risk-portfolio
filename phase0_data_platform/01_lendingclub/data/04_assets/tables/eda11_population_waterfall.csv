@@ -1,0 +1,4 @@
+stage,n_rows,dropped_from_previous,pct_of_raw
+raw_mat,2260701,0,100.0
+matured,1348099,912602,59.63
+windowed,1195879,152220,52.9

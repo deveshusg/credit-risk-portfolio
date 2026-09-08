@@ -1,7 +1,0 @@
-item,detail
-validation strategy,"consider year-stratified or time-based validation, not pure random split, given within-window drift (notebook 10)"
-cluster membership / anomaly score as features,MiniBatchKMeans clusters and Isolation Forest anomaly scores both showed real bad-rate spread (notebook 05) -- worth testing as engineered features
-sub_grade,not in the current feature set; notebook 13 suggests int_rate's within-grade signal likely comes from sub_grade -- consider adding it directly
-loss-given-default modeling,is_bad is PD-only; recovery amounts among charged-off loans are substantial and variable (notebook 07) -- a separate LGD model may be worth scoping
-occupation feature engineering,emp_title needs a taxonomy-mapping effort before it's usable (notebook 12) -- worth scoping if time allows
-grade/int_rate framing in any write-up,"describe as definitional risk-tier features, not causal drivers (notebook 13)"

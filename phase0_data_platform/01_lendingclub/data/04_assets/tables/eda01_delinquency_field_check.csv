@@ -1,0 +1,54 @@
+value,n,field
+Fully Paid,1076751,loan_status
+Current,878317,loan_status
+Charged Off,268559,loan_status
+Late (31-120 days),21467,loan_status
+In Grace Period,8436,loan_status
+Late (16-30 days),4349,loan_status
+Does not meet the credit policy. Status:Fully Paid,1988,loan_status
+Does not meet the credit policy. Status:Charged Off,761,loan_status
+Default,40,loan_status
+,33,loan_status
+0.0,2251857,acc_now_delinq
+1.0,8293,acc_now_delinq
+2.0,421,acc_now_delinq
+,62,acc_now_delinq
+3.0,50,acc_now_delinq
+4.0,11,acc_now_delinq
+5.0,3,acc_now_delinq
+6.0,2,acc_now_delinq
+7.0,1,acc_now_delinq
+14.0,1,acc_now_delinq
+0.0,2253465,delinq_amnt
+25.0,124,delinq_amnt
+65000.0,109,delinq_amnt
+30.0,85,delinq_amnt
+53.0,72,delinq_amnt
+54.0,69,delinq_amnt
+75.0,65,delinq_amnt
+50.0,64,delinq_amnt
+,62,delinq_amnt
+56.0,58,delinq_amnt
+0.0,2184561,num_tl_30dpd
+,70309,num_tl_30dpd
+1.0,5542,num_tl_30dpd
+2.0,253,num_tl_30dpd
+3.0,29,num_tl_30dpd
+4.0,7,num_tl_30dpd
+0.0,2073060,num_tl_90g_dpd_24m
+1.0,88450,num_tl_90g_dpd_24m
+,70309,num_tl_90g_dpd_24m
+2.0,16897,num_tl_90g_dpd_24m
+3.0,4672,num_tl_90g_dpd_24m
+4.0,2653,num_tl_90g_dpd_24m
+5.0,1398,num_tl_90g_dpd_24m
+6.0,1018,num_tl_90g_dpd_24m
+7.0,604,num_tl_90g_dpd_24m
+8.0,467,num_tl_90g_dpd_24m
+N,2259836,hardship_flag
+Y,832,hardship_flag
+,33,hardship_flag
+,2249784,hardship_status
+COMPLETED,7819,hardship_status
+BROKEN,2266,hardship_status
+ACTIVE,832,hardship_status

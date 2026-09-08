@@ -1,6 +1,0 @@
-test,result
-grade bad-rate ordering (pairwise z-tests),6/6 pairs significant
-purpose vs is_bad (chi-square),"p=0.0e+00, survives Bonferroni correction"
-annual_inc good vs bad (Mann-Whitney),p=0.0e+00
-baseline AUC stability (bootstrap),"95% CI [0.694, 0.701]"
-vintage window sensitivity (2012/2018 inclusion),2013-2017 window confirmed appropriate

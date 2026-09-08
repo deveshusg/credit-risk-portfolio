@@ -1,9 +1,0 @@
-field,n_distinct_values,recommended_encoding,reasoning
-term,2,binary indicator (is_60_month),only 2 values (36/60 months) -- a single 0/1 flag carries the same information as one-hot with no redundant column
-grade,7,ordinal (A=1 ... G=7),grade is Lending Club's own ordered risk tier (notebook 13) -- collapsing that order into unordered one-hot columns throws away real structure a tree or linear model can otherwise use directly
-emp_length,11,"ordinal (0-10, missing as its own level)","years-of-employment has a natural order, and notebook 02 found the missing group itself carries signal (higher bad rate) -- worth keeping as an explicit level, not imputing it away"
-home_ownership,5,one-hot,"small, unordered category set (RENT/OWN/MORTGAGE/OTHER-family) -- no natural order, low enough cardinality that one-hot adds few columns"
-verification_status,3,one-hot,3 unordered levels -- same reasoning as home_ownership
-purpose,14,"one-hot, or frequency/target encoding if the model family penalizes wide one-hot","moderate cardinality (~14 values), chi-square-confirmed association with is_bad (notebook 08) but a largely confounded-by-grade effect (notebook 13) -- one-hot is safe for tree models; a linear/regularized model may prefer a lower-dimensional encoding"
-addr_state,51,"drop in favor of addr_state_grouped, then one-hot or target encoding",50+ raw levels is too wide for one-hot on a linear model and too sparse in the tail states (notebook 11) for target encoding to be stable without the small-state grouping already applied in 03_data_cleaning
-addr_state_grouped (engineered in 03_data_cleaning),51,one-hot for tree models; target/frequency encoding worth testing for linear models,same field as addr_state but with the single sub-1000-loan state (IA) collapsed to 'OTHER' -- removes the one cell too sparse for stable target encoding

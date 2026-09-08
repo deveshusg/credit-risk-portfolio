@@ -1,8 +1,0 @@
-action,reason
-keep median imputation approach,notebooks 02/09 found no evidence to change the original imputation logic
-reconsider log transform for 7 fields,"acc_open_past_24mths, avg_cur_bal, bc_open_to_buy, num_actv_rev_tl, open_acc, revol_bal, tot_cur_bal did not improve target correlation (notebook 09)"
-consider dropping or collapsing tot_cur_bal / avg_cur_bal,"elevated VIF, likely redundant (notebook 09)"
-add a year or vintage feature,int_rate PSI=0.140 within the window -- year carries real signal (notebook 10)
-flag / exclude smallest states from state-level features,single-digit loan counts in the smallest states (notebook 11)
-do not include raw emp_title as a feature,unusable without occupation-taxonomy normalization (notebook 12)
-"keep grade and int_rate, but document as near-definitional","not independent causal drivers -- fine as predictors, misleading if described as causal (notebook 13)"

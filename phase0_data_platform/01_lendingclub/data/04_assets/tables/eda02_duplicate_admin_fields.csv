@@ -1,0 +1,12 @@
+column,n_distinct,n_rows,pair,check,value
+id,2260701.0,2260701.0,,,
+member_id,0.0,2260701.0,,,
+url,2260668.0,2260701.0,,,
+policy_code,1.0,2260701.0,,,
+,,,loan_amnt vs funded_amnt,correlation,0.999755268841625
+,,,funded_amnt vs funded_amnt_inv,correlation,0.999341334871347
+,,,out_prncp vs out_prncp_inv,correlation,0.9999987750482877
+,,,total_pymnt vs total_pymnt_inv,correlation,0.999395762593994
+,,,grade vs sub_grade,sub_grade prefix match,0.0
+,,,fico_range_low vs fico_range_high,correlation,0.9999999108557553
+,,,last_fico_range_low vs last_fico_range_high,correlation,0.8457774964847788

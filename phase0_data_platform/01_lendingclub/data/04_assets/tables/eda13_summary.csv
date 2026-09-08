@@ -1,5 +1,0 @@
-feature,category,reasoning
-grade,definitional,"IS Lending Club's own risk output, not an independent cause"
-int_rate,definitional + some independent signal,"tracks grade almost exactly, but retains a 4.4%-pt within-grade bad-rate spread"
-dti,plausibly mechanistic,effect survives stratifying by both grade and income
-purpose,likely confounded,gap shrinks within a fixed grade

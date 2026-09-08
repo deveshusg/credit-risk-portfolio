@@ -1,3 +1,0 @@
-column,note
-id,"loan identifier, not a numeric feature -- exclude from modeling despite passing the cast-rate test"
-policy_code,"single-valued category code in this population, not a measured quantity -- treat as categorical"

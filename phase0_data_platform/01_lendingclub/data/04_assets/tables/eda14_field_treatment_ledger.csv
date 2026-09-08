@@ -1,0 +1,152 @@
+column,classification,cast_rate_to_double,is_high_missingness,iv,treatment_decision
+out_prncp,post_origination,1.0,False,,exclude -- post-origination leakage
+out_prncp_inv,post_origination,1.0,False,,exclude -- post-origination leakage
+total_pymnt,post_origination,1.0,False,,exclude -- post-origination leakage
+total_pymnt_inv,post_origination,1.0,False,,exclude -- post-origination leakage
+total_rec_prncp,post_origination,1.0,False,,exclude -- post-origination leakage
+total_rec_int,post_origination,1.0,False,,exclude -- post-origination leakage
+total_rec_late_fee,post_origination,1.0,False,,exclude -- post-origination leakage
+recoveries,post_origination,1.0,False,,exclude -- post-origination leakage
+collection_recovery_fee,post_origination,1.0,False,,exclude -- post-origination leakage
+last_pymnt_d,post_origination,0.0,False,,exclude -- post-origination leakage
+last_pymnt_amnt,post_origination,1.0,False,,exclude -- post-origination leakage
+next_pymnt_d,post_origination,0.0,False,,exclude -- post-origination leakage
+last_credit_pull_d,post_origination,0.0,False,,exclude -- post-origination leakage
+last_fico_range_high,post_origination,1.0,False,,exclude -- post-origination leakage
+last_fico_range_low,post_origination,1.0,False,,exclude -- post-origination leakage
+hardship_flag,post_origination,0.0,False,,exclude -- post-origination leakage
+hardship_type,post_origination,0.0,True,,exclude -- post-origination leakage
+hardship_reason,post_origination,0.0,True,,exclude -- post-origination leakage
+hardship_status,post_origination,0.0,True,,exclude -- post-origination leakage
+deferral_term,post_origination,1.0,True,,exclude -- post-origination leakage
+hardship_amount,post_origination,1.0,True,,exclude -- post-origination leakage
+hardship_start_date,post_origination,0.0,True,,exclude -- post-origination leakage
+hardship_end_date,post_origination,0.0,True,,exclude -- post-origination leakage
+payment_plan_start_date,post_origination,0.0,True,,exclude -- post-origination leakage
+hardship_length,post_origination,1.0,True,,exclude -- post-origination leakage
+hardship_dpd,post_origination,1.0,True,,exclude -- post-origination leakage
+hardship_loan_status,post_origination,0.0,True,,exclude -- post-origination leakage
+orig_projected_additional_accrued_interest,post_origination,1.0,True,,exclude -- post-origination leakage
+hardship_payoff_balance_amount,post_origination,1.0,True,,exclude -- post-origination leakage
+hardship_last_payment_amount,post_origination,1.0,True,,exclude -- post-origination leakage
+debt_settlement_flag,post_origination,0.0,False,,exclude -- post-origination leakage
+debt_settlement_flag_date,post_origination,0.0,True,,exclude -- post-origination leakage
+settlement_status,post_origination,0.0,True,,exclude -- post-origination leakage
+settlement_date,post_origination,0.0,True,,exclude -- post-origination leakage
+settlement_amount,post_origination,1.0,True,,exclude -- post-origination leakage
+settlement_percentage,post_origination,1.0,True,,exclude -- post-origination leakage
+settlement_term,post_origination,1.0,True,,exclude -- post-origination leakage
+id,origination_time,1.0,False,,exclude -- admin/bookkeeping
+member_id,origination_time,0.0,True,,exclude -- admin/bookkeeping
+loan_amnt,origination_time,1.0,False,0.0331974746243654,candidate feature
+funded_amnt,origination_time,1.0,False,0.0331974743424077,candidate feature
+funded_amnt_inv,origination_time,1.0,False,,candidate feature
+term,origination_time,0.0,False,0.1809012138092345,candidate feature
+int_rate,origination_time,1.0,False,0.4626601980010375,candidate feature
+installment,origination_time,1.0,False,0.0284887534652553,candidate feature
+grade,origination_time,0.0,False,0.4725645273530501,candidate feature
+sub_grade,origination_time,0.0,False,0.5079246253001133,candidate feature
+emp_title,origination_time,0.0001,False,,candidate feature
+emp_length,origination_time,0.0,False,0.0,weak signal -- low priority
+home_ownership,origination_time,0.0,False,0.0326793303577106,candidate feature
+annual_inc,origination_time,1.0,False,0.0298785607714375,candidate feature
+verification_status,origination_time,0.0,False,0.0547903108629501,candidate feature
+issue_d,origination_time,0.0,False,,candidate feature
+pymnt_plan,origination_time,0.0,False,,candidate feature
+url,origination_time,0.0,False,,exclude -- admin/bookkeeping
+desc,origination_time,0.0,True,,exclude/flag -- >90% missing
+purpose,origination_time,0.0,False,0.0180680376440145,weak signal -- low priority
+title,origination_time,0.0001,False,,candidate feature
+zip_code,origination_time,0.0,False,,candidate feature
+addr_state,origination_time,0.0,False,0.0170503661604406,weak signal -- low priority
+dti,origination_time,1.0,False,0.0747135785294882,candidate feature
+delinq_2yrs,origination_time,1.0,False,0.0016754223981569,weak signal -- low priority
+earliest_cr_line,origination_time,0.0,False,,candidate feature
+fico_range_low,origination_time,1.0,False,0.1159299094928726,candidate feature
+fico_range_high,origination_time,1.0,False,0.1159299094928726,candidate feature
+inq_last_6mths,origination_time,1.0,False,,candidate feature
+mths_since_last_delinq,origination_time,1.0,False,,candidate feature
+mths_since_last_record,origination_time,1.0,False,,candidate feature
+open_acc,origination_time,1.0,False,0.0051650784739023,weak signal -- low priority
+pub_rec,origination_time,1.0,False,0.0009814910880487,weak signal -- low priority
+revol_bal,origination_time,1.0,False,0.0041943328055799,weak signal -- low priority
+revol_util,origination_time,1.0,False,0.0215713143831468,candidate feature
+total_acc,origination_time,1.0,False,0.0016114285115018,weak signal -- low priority
+initial_list_status,origination_time,0.0,False,4.862498024984565e-06,weak signal -- low priority
+collections_12_mths_ex_med,origination_time,1.0,False,,candidate feature
+mths_since_last_major_derog,origination_time,1.0,False,,candidate feature
+policy_code,origination_time,1.0,False,,exclude -- admin/bookkeeping
+application_type,origination_time,0.0,False,0.0019015225867579,weak signal -- low priority
+annual_inc_joint,origination_time,1.0,True,,exclude/flag -- >90% missing
+dti_joint,origination_time,1.0,True,,exclude/flag -- >90% missing
+verification_status_joint,origination_time,0.0,True,,exclude/flag -- >90% missing
+acc_now_delinq,origination_time,1.0,False,,candidate feature
+tot_coll_amt,origination_time,1.0,False,,candidate feature
+tot_cur_bal,origination_time,1.0,False,0.0399373267417645,candidate feature
+open_acc_6m,origination_time,1.0,False,,candidate feature
+open_act_il,origination_time,1.0,False,,candidate feature
+open_il_12m,origination_time,1.0,False,,candidate feature
+open_il_24m,origination_time,1.0,False,,candidate feature
+mths_since_rcnt_il,origination_time,1.0,False,,candidate feature
+total_bal_il,origination_time,1.0,False,,candidate feature
+il_util,origination_time,1.0,False,,candidate feature
+open_rv_12m,origination_time,1.0,False,,candidate feature
+open_rv_24m,origination_time,1.0,False,,candidate feature
+max_bal_bc,origination_time,1.0,False,,candidate feature
+all_util,origination_time,1.0,False,,candidate feature
+total_rev_hi_lim,origination_time,1.0,False,,candidate feature
+inq_fi,origination_time,1.0,False,,candidate feature
+total_cu_tl,origination_time,1.0,False,,candidate feature
+inq_last_12m,origination_time,1.0,False,,candidate feature
+acc_open_past_24mths,origination_time,1.0,False,,candidate feature
+avg_cur_bal,origination_time,1.0,False,0.0508321071157118,candidate feature
+bc_open_to_buy,origination_time,1.0,False,,candidate feature
+bc_util,origination_time,1.0,False,,candidate feature
+chargeoff_within_12_mths,origination_time,1.0,False,,candidate feature
+delinq_amnt,origination_time,1.0,False,,candidate feature
+mo_sin_old_il_acct,origination_time,1.0,False,,candidate feature
+mo_sin_old_rev_tl_op,origination_time,1.0,False,,candidate feature
+mo_sin_rcnt_rev_tl_op,origination_time,1.0,False,,candidate feature
+mo_sin_rcnt_tl,origination_time,1.0,False,,candidate feature
+mort_acc,origination_time,1.0,False,0.0376466183980825,candidate feature
+mths_since_recent_bc,origination_time,1.0,False,,candidate feature
+mths_since_recent_bc_dlq,origination_time,1.0,False,,candidate feature
+mths_since_recent_inq,origination_time,1.0,False,,candidate feature
+mths_since_recent_revol_delinq,origination_time,1.0,False,,candidate feature
+num_accts_ever_120_pd,origination_time,1.0,False,,candidate feature
+num_actv_bc_tl,origination_time,1.0,False,,candidate feature
+num_actv_rev_tl,origination_time,1.0,False,,candidate feature
+num_bc_sats,origination_time,1.0,False,,candidate feature
+num_bc_tl,origination_time,1.0,False,,candidate feature
+num_il_tl,origination_time,1.0,False,,candidate feature
+num_op_rev_tl,origination_time,1.0,False,,candidate feature
+num_rev_accts,origination_time,1.0,False,,candidate feature
+num_rev_tl_bal_gt_0,origination_time,1.0,False,,candidate feature
+num_sats,origination_time,1.0,False,,candidate feature
+num_tl_120dpd_2m,origination_time,1.0,False,,candidate feature
+num_tl_30dpd,origination_time,1.0,False,,candidate feature
+num_tl_90g_dpd_24m,origination_time,1.0,False,,candidate feature
+num_tl_op_past_12m,origination_time,1.0,False,,candidate feature
+pct_tl_nvr_dlq,origination_time,1.0,False,,candidate feature
+percent_bc_gt_75,origination_time,1.0,False,,candidate feature
+pub_rec_bankruptcies,origination_time,1.0,False,,candidate feature
+tax_liens,origination_time,1.0,False,,candidate feature
+tot_hi_cred_lim,origination_time,1.0,False,,candidate feature
+total_bal_ex_mort,origination_time,1.0,False,,candidate feature
+total_bc_limit,origination_time,1.0,False,,candidate feature
+total_il_high_credit_limit,origination_time,1.0,False,,candidate feature
+revol_bal_joint,origination_time,1.0,True,,exclude/flag -- >90% missing
+sec_app_fico_range_low,origination_time,1.0,True,,exclude/flag -- >90% missing
+sec_app_fico_range_high,origination_time,1.0,True,,exclude/flag -- >90% missing
+sec_app_earliest_cr_line,origination_time,0.0,True,,exclude/flag -- >90% missing
+sec_app_inq_last_6mths,origination_time,1.0,True,,exclude/flag -- >90% missing
+sec_app_mort_acc,origination_time,1.0,True,,exclude/flag -- >90% missing
+sec_app_open_acc,origination_time,1.0,True,,exclude/flag -- >90% missing
+sec_app_revol_util,origination_time,1.0,True,,exclude/flag -- >90% missing
+sec_app_open_act_il,origination_time,1.0,True,,exclude/flag -- >90% missing
+sec_app_num_rev_accts,origination_time,1.0,True,,exclude/flag -- >90% missing
+sec_app_chargeoff_within_12_mths,origination_time,1.0,True,,exclude/flag -- >90% missing
+sec_app_collections_12_mths_ex_med,origination_time,1.0,True,,exclude/flag -- >90% missing
+sec_app_mths_since_last_major_derog,origination_time,1.0,True,,exclude/flag -- >90% missing
+disbursement_method,origination_time,0.0,False,,candidate feature
+loan_status,target_outcome,0.0,False,,target -- not a feature
