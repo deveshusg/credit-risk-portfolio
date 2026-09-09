@@ -26,3 +26,7 @@ Thumbs.db
 # Kept local -- not pushed to GitHub
 CLAUDE.md
 docs/
+
+# Editor settings (machine-specific interpreter path)
+.vscode/
+.aider*
