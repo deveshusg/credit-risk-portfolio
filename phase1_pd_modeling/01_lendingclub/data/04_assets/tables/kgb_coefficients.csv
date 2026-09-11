@@ -1,0 +1,16 @@
+variable,coefficient
+loan_amnt_woe,-0.6567082899042527
+acc_open_past_24mths_woe,-0.6232418146185708
+term_woe,-0.6077859466647342
+annual_inc_woe,-0.5813062981081417
+int_rate_woe,-0.5804251402261995
+home_ownership_woe,-0.49322344325772255
+mort_acc_woe,-0.45396548981064555
+dti_woe,-0.44430564816940843
+tot_cur_bal_woe,-0.3644492672129426
+num_actv_rev_tl_woe,-0.3336151616073653
+fico_range_low_woe,-0.32047910383720984
+mo_sin_old_rev_tl_op_woe,-0.31136153038262776
+bc_open_to_buy_woe,-0.24036846140938417
+verification_status_woe,-0.21964544360461496
+inq_last_6mths_woe,-0.2130796013521971

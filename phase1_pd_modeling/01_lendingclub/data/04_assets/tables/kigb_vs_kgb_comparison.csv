@@ -1,0 +1,3 @@
+split,auc_overlap_only_kgb,auc_kigb,delta
+test,0.6336,0.6337,0.0
+OOT,0.638,0.638,0.0

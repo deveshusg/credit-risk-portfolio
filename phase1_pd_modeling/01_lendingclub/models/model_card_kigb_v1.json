@@ -1,0 +1,35 @@
+{
+  "model_name": "pd_scorecard_kigb_v1",
+  "fit_date": "2026-09-11",
+  "features": [
+    "fico_range_low_woe",
+    "dti_woe",
+    "loan_amnt_woe"
+  ],
+  "recommended_for_production_use": false,
+  "reason": "Empirically indistinguishable from the overlap-only KGB model (AUC delta ~0.0000 on test/OOT, 0 swap-set loans) -- consistent with Huang & Scott's finding that reject inference often doesn't materially change scorecard performance, here confirmed on this project's own data given only 3 overlapping fields exist between accepts and rejects.",
+  "validation_conservative_check": "PASS",
+  "validation_monotonic_check": "PASS except one small-sample reversal in the lowest Risk_Score band",
+  "comparison_vs_overlap_only_kgb": [
+    {
+      "split": "test",
+      "auc_overlap_only_kgb": 0.6336,
+      "auc_kigb": 0.6337,
+      "delta": 0.0
+    },
+    {
+      "split": "OOT",
+      "auc_overlap_only_kgb": 0.638,
+      "auc_kigb": 0.638,
+      "delta": 0.0
+    }
+  ],
+  "reject_sample_size": 98127,
+  "scored_reject_population_total": 9151111,
+  "policy_code_hypothesis": "REJECTED -- Risk_Score completeness is lower for Policy Code=2 (18.13%) than Policy Code=0 (33.15%), the opposite of the plan's assumed mapping. 'Scored' redefined as Risk_Score IS NOT NULL.",
+  "library_versions": {
+    "sklearn": "1.7.2",
+    "pandas": "2.3.3",
+    "numpy": "2.2.6"
+  }
+}
