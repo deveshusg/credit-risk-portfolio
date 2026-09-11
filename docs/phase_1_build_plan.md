@@ -1,503 +1,568 @@
 # Phase 1 Build Plan — PD Account-Level Scorecard (Lending Club)
 
 **Status as of this writing: not started. Nothing in this document has been
-built.** This is the plan, written after Phase 0 was audited and found ready
-(`docs/phase_0_report.md`), then corrected once during pre-build live
-verification (see §6's baseline note and the changelog at the bottom of this
-file). Every checklist item below is unchecked because the notebook file
-does not exist yet.
+built.** This is v3 of this plan — rebuilt from scratch against 10 real
+external sources chosen to mirror actual bank scorecard practice (§0), after
+v2 fixed the location/baseline issues but was still missing three things
+every one of these sources treats as core to a real bank build: vintage/
+roll-rate analysis, reject inference as an in-scope step (not a deferred
+follow-on), and scaling-to-points with adverse-action reason codes. All
+three are now first-class sections below. The changelog at the bottom
+tracks what changed between v1 → v2 → v3.
 
 This document is written to be self-sufficient: an agent with no other
 context should be able to read this file alone and know exactly what to
 build, why, in what order, against which real data, and what "done" looks
-like — without needing to re-derive anything from the KB or re-read Phase 0
-from scratch.
+like — without needing to re-derive anything from the KB, the external
+sources, or Phase 0 from scratch.
 
 ---
 
-## 1. What Phase 1 is, and why it's next
+## 0. The 10 sources this plan is built against
+
+Requested explicitly: 10 well-regarded, independent sources covering the
+combination of roll-rate/vintage analysis, WOE binning, logistic regression,
+reject inference, and validation — the actual end-to-end shape of a bank
+application scorecard build, not just the modeling core. Chosen for
+diversity of source type (industry-standard text, vendor methodology,
+vendor toolkit docs, academic/regulatory paper, practitioner blog, open
+implementation) rather than 10 versions of the same tutorial.
+
+| # | Source | Type | What it grounds in this plan |
+|---|---|---|---|
+| 1 | Naeem Siddiqi, *Credit Risk Scorecards: Developing and Implementing Intelligent Credit Scoring* (Wiley) — 2nd ed. retitled *Intelligent Credit Scoring* | Industry-standard book | The book virtually every other source below cites as the reference; underlies the fine/coarse-classing, WOE/IV, and KGB/KIGB vocabulary used throughout |
+| 2 | SAS Institute, "Developing a Credit Risk Model Using SAS" (SAS Global Forum, Paper 3554-2019) | Vendor methodology paper | The 11-step KGB→KIGB acquisition-scorecard process (§5 onward); SPM window framing (§4); scaling parameters and reason codes (§16); 3-team governance framing (§19) |
+| 3 | SAS Institute, "Reject Inference Techniques Implemented in Credit Scoring" (SAS Global Forum, Paper 305-2009) | Vendor methodology paper | Cross-check on reject-inference technique tradeoffs (§12) |
+| 4 | MathWorks, "Case Study for a Credit Scorecard Analysis" (Risk Management Toolbox docs) | Vendor toolkit documentation | The concrete fit→scale→score→validate sequence (§9, §16, §17); confirms this project's own step order isn't idiosyncratic |
+| 5 | MathWorks, "Use Reject Inference Techniques with Credit Scorecards" | Vendor toolkit documentation | Fuzzy augmentation vs. hard-cutoff mechanics (§12); the "score rejects with the accepts-only model, merge, refit" workflow shape |
+| 6 | Huang & Scott (University of Edinburgh Credit Research Centre), "Credit Risk Scorecard Design, Validation and User Acceptance" | Academic/regulatory-oriented paper | Development-vs-OOT-vs-TTD population framing (§7); the finding that reject inference alone rarely explains OOT degradation — tempers how much weight this plan puts on reject inference "fixing" performance (§12) |
+| 7 | YOU CANalytics, "Information Value (IV) & Weight of Evidence (WOE) – Banking Case Study" | Practitioner blog (banking-analytics) | The IV-strength table (§9) and the "broad-based model over one dominant variable" caution applied to the grade/int_rate decision (§10) |
+| 8 | YOU CANalytics, "Reject Inference & Scorecards – Banking Case" (5-part series) | Practitioner blog (banking-analytics) | Parceling vs. fuzzy augmentation mechanics compared directly against this project's actual rejected-file field constraints (§12) |
+| 9 | ListenData, "Credit Risk: Vintage Analysis" | Practitioner blog | Vintage-curve/MOB methodology (§6) |
+| 10 | Tanuka Mandal, "Roll Rate Analysis and Vintage Analysis in IFRS 9" | Practitioner blog (IFRS 9-focused) | Roll-rate/DPD-transition-matrix definition (§6) — used here mainly to establish **why** this technique does **not** transfer to Lending Club's data, not to build one |
+
+Every technique borrowed from these sources is re-verified against this
+project's own live data before being written into a notebook cell, per the
+evidence-in-code rule — a source establishing "this is how banks do it"
+is not the same as this project's own number, and the two are never
+conflated (§3, rule 1; this is exactly the mistake v1→v2 corrected for the
+baseline AUC).
+
+---
+
+## 1. What Phase 1 is, and why it's structured as two notebooks now
 
 Phase 1 = building the first working PD (Probability of Default) model for
-Lending Club: an **account-level, application scorecard**, trained on the
-model-ready population Phase 0 produced. It is the first of four sequential
-modeling phases planned for this dataset (Phase 1 PD → Phase 2 LGD → Phase 3
-EAD → Phase 4 IFRS 9 ECL assembly), with Phase 5 (validation & monitoring)
-running alongside/after all four.
+Lending Club: an **account-level, application scorecard**. Every one of the
+10 sources in §0 treats an application-scorecard build as ending with a
+production scorecard that has had reject inference applied (the SAS paper's
+own final deliverable is the **KIGB** model, not the accepts-only **KGB**
+model) — not as a scorecard with reject inference bolted on later "if
+there's time." v1/v2 of this plan deferred reject inference as a follow-on;
+that undersells what "closely imitates actual bank working" means, per the
+explicit brief this revision was written against.
 
-**Why PD first, specifically:** LGD and EAD (Phases 2–3) both need PD-adjacent
-concepts already established (segmentation via `grade`, the TTC/PIT
-philosophy decision) to make sense of *when* a loss is being measured, and
-the eventual IFRS 9 ECL assembly (Phase 4) is literally `PD × LGD × EAD` —
-building PD first gives every later phase a working reference point.
-This is also KB's own module ordering (§8 PD → §11–13 LGD/EAD → §14 IFRS9)
-and the `credit-risk-curriculum` skill's own stated build order.
+**Structural consequence — a real decision, stated explicitly, not silent:**
+building the KGB scorecard (1,195,879 accepted loans) and the reject-
+inference/KIGB step (27,648,741 rejected applications, §4) in one notebook
+would mix two very different data-scale, data-shape problems into one file,
+against this project's own convention of one clear unit of work per
+notebook (Phase 0's 14 EDA notebooks each covered one dimension). **Phase 1
+is therefore two notebooks, both under the same `phase1_pd_modeling/`
+folder:**
 
-**Why now, not later:** Phase 0's audit (`docs/phase_0_report.md`, verdict
-section) found zero blocking issues — a clean, evidence-backed, 31-column
-model-ready table with a documented governance ledger. Nothing about Phase 1
-requires re-opening Phase 0.
+| Notebook | Covers |
+|---|---|
+| `01_pd_kgb_scorecard.ipynb` | §5–§11, §13–§18: accepts-only scorecard, from partition through persistence |
+| `02_pd_reject_inference_kigb.ipynb` | §12: loads the rejected-applicant file, performs reject inference, builds and validates the KIGB scorecard against the KGB baseline |
+
+This is a change from v2's single-notebook assumption — flagged here for
+Devesh's sign-off before either notebook is created, same as any other
+structural decision in this project.
+
+**Why PD first, specifically, and why now:** unchanged from v2 — see the
+prior version's §1 reasoning (LGD/EAD need PD-adjacent concepts;
+`PD × LGD × EAD` is Phase 4's formula; Phase 0's audit found zero blocking
+issues).
 
 ---
 
-## 2. Where this lives — RESOLVED
-
-**Confirmed location:** a new top-level `phase1_pd_modeling/` folder,
-sibling to `phase0_data_platform/`, mirroring that folder's own
-dataset-subfolder convention so later datasets/phases stay structurally
-consistent:
+## 2. Where this lives
 
 ```
 phase1_pd_modeling/
   01_lendingclub/
     notebooks/
-      01_pd_account_scorecard.ipynb   <- this notebook
-    models/                            <- serialized fitted model objects (§8)
+      01_pd_kgb_scorecard.ipynb            <- §5-§11, §13-§18
+      02_pd_reject_inference_kigb.ipynb    <- §12
+    models/
+      pd_scorecard_kgb_v1.joblib            <- §18
+      pd_scorecard_kigb_v1.joblib           <- produced by notebook 02
 ```
 
-This was an open question in an earlier draft of this document (proposing
-`phase0_data_platform/01_lendingclub/notebooks/04_modeling/` instead,
-matching the `credit-risk-curriculum` skill's own file paths) — Devesh
-confirmed the top-level-folder approach in chat. The skill's reference files
-(03, 04) still refer to `04_modeling/...`; treat that as the skill's own
-staleness, not a reason to relocate this notebook.
+Confirmed with Devesh (v2): a new top-level folder, mirroring
+`phase0_data_platform/01_lendingclub/`'s own dataset-subfolder convention.
 
 ---
 
-## 3. Non-negotiables carried over from Phase 0 (with two corrections)
-
-The same three standing rules apply, unchanged, plus one new standing rule
-this notebook must follow that Phase 0's notebooks didn't need (Phase 0 had
-no competing techniques to choose between — Phase 1 does, repeatedly):
+## 3. Non-negotiables (unchanged from v2, restated for self-sufficiency)
 
 1. **Evidence-in-code** — every markdown claim backed by a printed number in
-   the same notebook, in the same cell block. This applies with extra force
-   here: every IV/AUC/PSI number cited below **must be re-derived live**
-   against `windowed`/the parquet inside the new notebook, never hard-coded
-   from this document, from Phase 0, or from a skill reference file. **This
-   rule caught a real error during this project's own pre-build check** —
-   see §6's baseline note — so treat it as load-bearing, not a formality.
-2. **Direct DuckDB connection — correcting the skill's reference files.**
-   The `credit-risk-curriculum` skill's reference files (03, 04) say to use
-   `notebooks/_shared/nb_setup.py`'s `connect()`. **This is stale** — Phase
-   0's audit confirmed `nb_setup.py` is obsolete project-wide; the real
-   standing rule (`CLAUDE.md`, and both Phase 0 notebooks' own actual code)
-   is a direct inline `duckdb.connect(DUCKDB_FILE, read_only=True)` using the
-   same `RAW_FILE`/`DUCKDB_FILE`/`ASSETS_TABLES`/`ASSETS_PLOTS` relative-path
-   variables Phase 0 used.
-3. **No premature narrowing outside `03_data_cleaning`** — this rule's
-   *spirit* still applies to a modeling notebook: any feature considered and
-   then dropped (e.g. deciding not to use `grade`/`int_rate`, see §6) needs an
-   explicit, evidenced markdown decision cell, not a silent omission.
-4. **Technique justification — new standing rule for Phase 1 onward.**
-   Every place this notebook picks one modeling technique over a plausible
-   alternative gets its own markdown cell answering "why this, not that,"
-   evidenced where possible (a quick live comparison, a cited KB rule, or a
-   named practical constraint) — not just asserted as a preference. This is
-   broader than the two decision cells Phase 0-era planning already called
-   out (grade/int_rate near-definitional choice, TTC vs. PIT). The full list
-   of decisions that need one of these cells is in §6.
+   the same notebook. Numbers cited in this document from the 10 external
+   sources (§0) or from this session's own pre-build scouting (§4, §6, §11)
+   are **not** substitutes for the notebook's own live computation — restate
+   and re-derive, don't import as fact. This rule caught a real, previously
+   undetected error in v1 of this document (an unreproducible baseline AUC)
+   — treat it as load-bearing.
+2. **Direct DuckDB connection** — `duckdb.connect(DUCKDB_FILE, read_only=True)`
+   inline in each notebook, not the skill's stale `nb_setup.py` reference.
+3. **No premature narrowing outside `03_data_cleaning`** — any feature
+   considered and dropped needs an explicit, evidenced decision cell.
+4. **Technique justification** — every point this notebook picks one
+   technique over a plausible alternative (drawn from the tradeoffs the 10
+   sources in §0 actually disagree on — e.g. fuzzy augmentation vs.
+   parceling, pooled vs. per-vintage calibration) gets a markdown cell
+   answering "why this, not that," marked **[TJ]** in the cell plans below.
 
-**Explain before building.** Per how every notebook in this project has been
-built so far: this document is the plan. Actual notebook code is written
-section by section, shown to Devesh, and only committed after he says
-"go ahead" — this build plan does not authorize writing the notebook itself.
-
-**Executive style, same conventions:** bullets/tables over prose, no
-`tabulate` (pandas `.to_string()` for eyeball previews), the
-markdown-before/code/markdown-**Result**-**Next**-after cell pattern, an
-intro cell + cell-map table at the top, section closers at the end of each
-logical block — identical to both Phase 0 notebooks.
+**Explain before building; executive style; no `tabulate`** — unchanged
+from v2.
 
 ---
 
-## 4. Data inputs — exact tables/columns, and the one structural trap
+## 4. Data inputs — both populations, and the constraint that matters most
 
-- **Primary source:** `windowed` table in
-  `phase0_data_platform/01_lendingclub/data/02_interim/lendingclub.duckdb`
-  (1,195,879 rows, live-confirmed this session) — connect read-only, per §3.
-  **Note:** every field in `windowed` is stored as `VARCHAR` (confirmed live
-  via `DESCRIBE windowed`), including `int_rate`, `dti`, `fico_range_low`,
-  `grade`. This notebook must explicitly `CAST` numeric fields before any
-  modeling step — do not assume DuckDB's schema matches the parquet's typed
-  columns.
-- **Feature reference:** `data/03_processed/lendingclub_model_ready.parquet`
-  (31 columns, re-verified in Phase 0's audit: 1,195,879 rows, 0 nulls, `id`
-  unique, bad rate 20.5214%). Categorical fields are **unencoded strings** in
-  this file by design — WOE-encoding them is this notebook's job.
-- **`sub_grade` — confirmed present and fully populated in `windowed`**
-  (live-checked this session: 1,195,879 non-null, 35 distinct values, A1–G5).
-  It is **not** in the 31-column parquet — pull it fresh from `windowed` if
-  the grade/int_rate decision (§6) leads toward wanting within-grade signal.
-- **Full field-role dictionary, governance ledger, and the two carried-over
-  Phase 0 items** (`revol_util`'s capping rule still open; `emp_length` kept
-  categorical rather than numerically parsed) are documented in
-  `docs/phase_0_report.md` §4–§5.
+**Accepted population (`windowed`):**
+- 1,195,879 rows, live-confirmed. Every field `VARCHAR` in DuckDB — cast
+  explicitly. `sub_grade` present and fully populated (35 distinct values).
+  Full field dictionary in `docs/phase_0_report.md` §4.
+- `loan_status` has exactly **3 values** in `windowed`: `Fully Paid`
+  (950,468), `Charged Off` (245,378), `Default` (33) — this is the matured/
+  final-disposition population by construction, **not** a delinquency-bucket
+  snapshot. This fact directly shapes §6's scope decision.
+
+**Rejected population (`rejected_2007_to_2018Q4.csv.gz`) — the file every
+prior version of this plan named but never actually opened:**
+- **27,648,741 rows**, live-counted this session — roughly **23× the size**
+  of the accepted population. Confirms the real scale of Lending Club's
+  through-the-door (TTD) population that KB §8.2 and every reject-inference
+  source in §0 assume exists.
+- **Only 9 columns**: `Amount Requested`, `Application Date`, `Loan Title`,
+  `Risk_Score`, `Debt-To-Income Ratio`, `Zip Code`, `State`, `Employment
+  Length`, `Policy Code`. **This is the single biggest practical constraint
+  on §12** — `grade`, `int_rate`, `purpose`, `home_ownership`, and every
+  other accepted-only field simply do not exist for rejects. Reject
+  inference here can only use the fields that overlap: `Risk_Score` (a
+  FICO-like proxy, not necessarily the same scale as `fico_range_low`),
+  DTI, loan amount, state, and employment length.
+- **`Policy Code` distribution** (live-counted): `0` → 27,559,694 (99.68%),
+  `2` → 88,129 (0.32%), null → 918. Per KB §8.2's own rule ("policy
+  rejects — No"), the code-`0` population are automatic policy rejects that
+  never reached a score-based decision and should be **excluded** from
+  reject inference, not merged in wholesale. **This leaves an unconfirmed,
+  possibly very small, actually-usable reject population** — code `2`'s
+  88,129 rows is the working hypothesis, but what code `2` specifically
+  means for Lending Club must be confirmed via `Risk_Score`'s null rate and
+  distribution within each code, live, before assuming it's the "scored but
+  declined" population §12 needs. **Do not assume this mapping — verify it
+  as the first cell of notebook 02.**
+- **Vintage/timing fields for §6**: `issue_d` and `last_pymnt_d` both exist
+  and are usable — live-checked: 243,734 / 245,378 (99.3%) of `Charged Off`
+  loans have a non-null `last_pymnt_d`, giving `DATEDIFF('month', issue_d,
+  last_pymnt_d)` as a workable months-on-book-at-last-activity proxy (sample
+  values live-checked: 7, 13, 9, 12, 3, 4, 11 months).
 
 ---
 
-## 5. Data partition — train / validation / test / OOT
+## 5. Event & window definition — restate before modeling anything
 
-Live-verified `issue_year` distribution (derived from `issue_d` via
-`strptime(issue_d, '%b-%Y')` — `windowed` has no pre-existing year column):
+Every source in §0 that gives a full process (SAS 3554-2019 step 1; Huang &
+Scott) opens with this, and it has never been an explicit step in this
+project's own plan before — it was implicitly inherited from Phase 0's
+`windowed`/`matured` table construction without being restated here.
 
-| `issue_year` | n | share |
+- **Bad definition**: `is_bad` (already built into `windowed`) — restate its
+  exact construction rule live (which `loan_status` values map to bad;
+  confirm `Default`'s 33 rows are included as bad, not silently dropped as
+  a rounding error).
+- **SPM windows** (Sample / Performance / Measurement, per SAS 3554-2019):
+  - *Sample window*: the `issue_d` range loans were originated in
+    (2013–2017, per §5-of-v2's live-checked `issue_year` table).
+  - *Performance window*: however long Phase 0's `matured`/`windowed`
+    construction waited before calling a loan's outcome final — **this must
+    be restated from Phase 0's ingestion notebook's own logic**, not
+    assumed, since §6's vintage curve needs to know whether every vintage in
+    scope has actually had enough time to mature or whether later vintages
+    (2016, 2017) are systematically under-observed relative to 2013–2014.
+  - *Measurement window*: the point at which `is_bad` is read off (i.e.
+    `loan_status` at data-pull time) — already implicit in `windowed` but
+    worth one restated sentence for a reader with no other context.
+
+---
+
+## 6. Vintage & cohort default-timing analysis — new section, and an explicit scope boundary
+
+**What the 10 sources call this, and why it doesn't fully transfer:**
+Tanuka Mandal's IFRS 9 roll-rate methodology (source 10) describes a
+**monthly DPD-bucket transition matrix** (Current → 1-30 → 31-60 → 61-90 →
+90+), built from repeated monthly snapshots of the same loan. **Lending
+Club's public accepted-loan file is a single snapshot per loan, not a
+monthly panel** — `windowed`'s `loan_status` has exactly 3 terminal values
+(§4), confirming there is no intermediate delinquency-bucket history to
+build a transition matrix from. **A literal roll-rate/DPD-transition-matrix
+analysis is not buildable from this data — say so explicitly in the
+notebook rather than force a proxy that misrepresents what a real bank's
+roll-rate analysis actually is.** This is the same honesty standard already
+applied to EAD/CCF (Phase 3 plan) and the DPD-based SICR proxy (Phase 4
+plan) — don't invent a fictitious version of a technique this dataset can't
+support.
+
+**What *is* buildable, and is genuinely useful — ListenData's vintage-curve
+methodology (source 9):**
+- For each `issue_year` cohort, compute the distribution of
+  months-on-book-at-charge-off (`DATEDIFF('month', issue_d, last_pymnt_d)`
+  for `loan_status = 'Charged Off'`, §4) and plot the cumulative bad rate
+  against MOB, one curve per cohort.
+- **Direct use for this project**: validates whether the earlier vintages
+  (2013–2014) have actually stabilized (curve flattens) while confirming
+  whether 2016–2017 cohorts are still "developing" — i.e. whether Phase 0's
+  `windowed`/`matured` definition already accounts for immaturity bias, or
+  whether it doesn't and the 2017 OOT slice (§7) is systematically
+  under-counting bad loans that simply haven't had time to charge off yet.
+  **This is a real risk to the OOT split's validity that no prior version
+  of this plan checked for.**
+- **Secondary use**: a vintage curve comparing 2013 vs. 2017 cohort shape is
+  a second, independent lens on the same drift `int_rate` PSI (0.140,
+  Phase 0) already flagged — if 2017's default-timing curve is
+  systematically faster or slower than 2013's, that's corroborating (or
+  contradicting) evidence for the TTC/PIT decision (§14).
+
+This section is **diagnostic, not a modeling input** — its output is a
+markdown finding (does `windowed` already handle immaturity correctly?) and
+a plot, not a feature. Its finding is a **[TJ]**-flagged input to §7 (does
+the 2017 OOT slice need adjustment?) and §14 (TTC/PIT).
+
+---
+
+## 7. Data partition — train / validation / test / OOT (unchanged from v2, restated)
+
+| Group | Definition | Rows (live-checked) |
 |---|---|---|
-| 2013 | 134,804 | 11.3% |
-| 2014 | 223,103 | 18.7% |
-| 2015 | 375,546 | 31.4% |
-| 2016 | 293,105 | 24.5% |
-| 2017 | 169,321 | 14.2% |
-| **Total** | **1,195,879** | 100% |
+| OOT | `issue_year = 2017`, held out entirely | 169,321 (14.2%) |
+| Train | Random, stratified on `is_bad`, from `issue_year` 2013–2016, 60% | ≈615,935 |
+| Validation | Same pool, 20% — every "which option wins" comparison | ≈205,312 |
+| Test | Same pool, 20% — touched once, after all decisions locked | ≈205,311 |
 
-**Recommended split — four groups, two different splitting logics:**
+Re-verify against §6's finding before finalizing: if 2017 turns out to be
+materially immature (undercounting bads), state that explicitly as a caveat
+on the OOT metric in §11/§17 rather than silently reporting it as
+comparable to test.
 
-1. **OOT (Out-of-Time) = `issue_year = 2017`** — 169,321 rows (14.2%), held
-   out **entirely**, never touched during fitting, binning, threshold
-   selection, or any comparison between candidate specifications. This
-   reuses the exact vintage boundary already implicated in the project's own
-   `int_rate` PSI = 0.140 (2013 vs. 2017) drift finding — OOT performance on
-   2017 is therefore a direct test of "does this scorecard hold up on the
-   population we already know has drifted," not an arbitrary cutoff.
-2. **Train / Validation / Test — random, stratified split of the remaining
-   `issue_year` 2013–2016 pool (1,026,558 rows)**, stratified on `is_bad`
-   (and consider also stratifying on `grade`, so segment proportions aren't
-   accidentally skewed across the three splits):
-   - **Train — 60%** (≈615,935 rows): fit WOE bin edges and the logistic
-     regression coefficients. WOE bin edges are **fit on train only** and
-     then **applied (not refit)** to validation, test, and OOT — fitting
-     bins separately on each split would leak information and make the
-     splits non-comparable.
-   - **Validation — 20%** (≈205,312 rows): the set used for every "which
-     option performed better" comparison — coarse-classing threshold
-     choices, the grade/int_rate Option A/B comparison, the TTC/PIT
-     comparison. Touched repeatedly during development, by design.
-   - **Test — 20%** (≈205,311 rows): touched **exactly once**, after every
-     modeling decision is locked using train/validation only. This is the
-     in-time performance number reported alongside OOT.
-
-**Why four groups, not the KB's plainer three (train/validation/OOT):** the
-KB's own scorecard pipeline (§8.1) only names three because it doesn't
-distinguish "the set you tune thresholds against" from "the set you report
-your final in-time number from" — collapsing those into one set (as a
-plain train/validation/OOT split would) risks a subtly optimistic final
-metric, since the same data used to pick coarse-classing cutpoints would
-also be the data used to report performance on. The fourth group (test)
-exists specifically to keep that reported number honest.
-
-**Simpler alternative, if this feels like more machinery than the project
-needs:** merge validation and test into one set (train/validation/OOT,
-matching the KB's plain three-way split) — defensible for a portfolio
-project of this scope, since the coarse-classing thresholds here are
-mostly rule-based (>2%-population, monotonicity) rather than the product of
-heavy hyperparameter search, so the leakage risk the four-way split guards
-against is smaller than in a typical ML tuning pipeline. **Recommendation:
-keep the four-way split** — it costs one extra `train_test_split` call and
-directly answers "did we overfit our own threshold choices," which is worth
-having in a project meant to demonstrate rigor.
-
-All four splits, and the exact row counts each notebook run actually
-produces, must be printed live in the notebook's own partition cell — the
-numbers above are this session's pre-build scouting, not something to
-hard-code.
+WOE bin edges (§9) are fit on train only, applied unchanged to
+validation/test/OOT — unchanged from v2.
 
 ---
 
-## 6. KB mapping — the full scorecard pipeline
+## 8. Feature engineering vs. feature selection (unchanged from v2, restated)
 
-Full depth in `docs/Peaks2Tails_Knowledge_Base.md` (§8, §9, §10, §17) and the
-skill's reference files 03/04 — cited by section below, not reproduced.
+- **Engineering**: minimal by design — `issue_year`/vintage derivation from
+  `issue_d` (also feeds §6); WOE transformation *is* the engineering step
+  for categorical/binned-numeric candidates (**[TJ]**: WOE vs. one-hot/
+  target encoding — monotonicity, missing/rare-category handling,
+  interpretable coefficients).
+- **Selection**: IV-threshold filter (table below, source 7), applied on
+  train; multicollinearity check on WOE-transformed candidates; stepwise
+  elimination flagged optional.
 
-| Stage | KB ref | What it means for this notebook |
-|---|---|---|
-| Data partition | §8.1 | See §5 above. |
-| Fine classing | §8.1 | ~20 quantile/tree-driven bins per numeric candidate, fit on train only. |
-| Coarse classing | §8.1 | Collapse to ≤8 classes; enforce monotonic bad-rate trend, >2% population/class, >50 bads/class (or 1% of all bads) as **live code asserts**. With ~245K bads in the population, the bads-floor is trivial to clear; the binding constraint in practice will be the >2%-population rule and monotonicity. |
-| WOE / IV | §8.1 | `WoE = ln(%good/%bad)`, `IV = Σ(%good−%bad)×WoE`, computed **live** on train, applied to validation/test/OOT. |
-| Grade/sub_grade as existing segmentation | §9 (ref. 04 §1) | This project is **auditing** an existing segmentation (LC's own A–G/1–5 grade), not building one from scratch. Concentration, monotonicity (A→G, and A1→A5 within grade), and AUC(grade-alone) vs AUC(full model) are the concrete checks. |
-| TTC vs PIT | §10.1 (ref. 04 §2) | A decision cell: include `issue_year`/drift as a model feature → PIT-leaning; keep it monitoring-only → TTC-leaning. Cite the notebook's own live PSI number as evidence — needs a technique-justification cell per §3 rule 4. |
-| Calibration | §10.3 (ref. 04 §3) | Target central tendency = the population's own realized bad rate (~20.5%, re-verify live). Recommended default: **pooled** calibration (fit once on all of train) with a per-vintage representativeness check as validation. Method 1 (log-odds linear regression) is the natural starting method — needs a technique-justification cell (why Method 1 over isotonic/Platt scaling). |
-| Master Rating Scale validation | §10.2, §10.5 (ref. 04 §4) | LC's grade×sub_grade is already a 35-notch MRS — validate, don't replace, unless validation actually fails. |
-| Reject inference | §8.2 (ref. 03 §3.4) | **Out of scope for this notebook** — a legitimate follow-on once the accepts-only scorecard is validated. Lending Club's `rejected_2007_to_2018Q4.csv.gz` is already sitting in `data/01_raw/`, untouched, for whenever that follow-on happens. Flag this explicitly in the notebook's closing markdown. |
-| Scaling (PDO) | §8.1 | Optional final step once the base logistic model validates. |
-
-**The one explicit modeling-design decision this notebook must state, not
-silently resolve:** `grade` (IV 0.4806, live-verified this session, close to
-the 0.47 the skill's reference file cites) and `int_rate` sit right at KB's
-"≥0.5 = very strong/suspicious, re-check for leakage" boundary. They are
-**not** outcome leakage in the technical sense — `grade` predates default,
-it's LC's own underwriting output — but they are near-definitional. Two
-legitimate options, either acceptable, **neither silent** (needs a
-technique-justification cell per §3 rule 4):
-- **Option A** — keep both, document why (predates default, legitimately
-  informative, matches "build it the way it will be applied").
-- **Option B** — engineer around them, forcing the model onto more
-  mechanistic features (`dti` is the strongest candidate — its effect
-  survives stratifying by both grade and income per Phase 0's own finding).
-
-**Baseline to beat — CORRECTED, this is important.** An earlier draft of
-this document cited "Phase 0's own baseline logistic regression bootstrap
-95% AUC CI [0.695, 0.698]" as an existing, already-computed project result.
-**That number does not reproduce and should not be treated as fact.** It
-traced back to the `credit-risk-curriculum` skill's own reference file
-(`03-pd-account-level-scorecard.md`), which itself says to re-derive it live
-rather than import it — a step that was skipped when this document was first
-written. Live re-derivation this session, several ways, all against the real
-`windowed` table:
-
-| Approach | AUC |
+| IV range | Classification (source 7 / Siddiqi convention) |
 |---|---|
-| grade (WOE) + int_rate, train 2013–2016 → OOT 2017 | 0.681 (OOT), bootstrap 95% CI [0.678, 0.684] |
-| grade (WOE) + int_rate, in-sample on train | 0.688 |
-| grade (one-hot) + int_rate, random 70/30 split | 0.687 |
-| int_rate alone | 0.685 |
-| grade alone | 0.681 |
-| grade (one-hot) + int_rate, in-sample, full population | 0.688 |
-
-Every variant lands at **0.68–0.69**, not 0.695–0.698. **There is no
-verified prior baseline in this repo.** This notebook establishes the first
-one, live, using the exact train/validation/test/OOT split in §5 — whatever
-number the notebook's own §5-split, §6-pipeline logistic fit produces on
-`test` and `OOT` *is* the project's baseline going forward, reported with a
-bootstrap CI, and it is **not** expected to land at [0.695, 0.698]. A
-properly-binned, WOE-transformed scorecard should be expected to land in a
-broadly similar range to the numbers above (same underlying feature set),
-not dramatically exceed them — a much higher number would itself be worth
-investigating for a mistake before celebrating it.
+| < 0.02 | Useless |
+| 0.02–0.1 | Weak |
+| 0.1–0.3 | Medium |
+| 0.3–0.5 | Strong |
+| > 0.5 | Suspicious — review for leakage/near-definitional risk |
 
 ---
 
-## 7. Feature engineering vs. feature selection — scope, and why they're kept distinct
+## 9. Fine classing, coarse classing, WOE/IV
 
-The earlier draft of this document blurred these two together inside "fine
-classing → coarse classing → WOE/IV." They are different jobs and get their
-own explicit points in the notebook:
+Unchanged methodology from v2 (~20 bins fine, ≤8 coarse, >2%-population,
+>50-bads, monotonic WoE, all as live asserts) — **[TJ]** manual rule-based
+classing vs. an automated optimal-binning library (`optbinning`): manual
+chosen for auditability, consistent with this project's evidence-in-code
+ethos (source 4's MathWorks toolkit auto-bins first, then requires manual
+review for the same reason — automated binning is a starting point, not a
+substitute for a reviewed, monotonic result).
 
-**Feature engineering — deliberately minimal here, by design, not by
-omission.** For a scorecard build, "feature engineering" is mostly *already
-done*:
-- Phase 0's cleaning notebook already applied the numeric transforms a
-  scorecard needs upstream (log1p, p1/p99 capping) — this notebook does not
-  redo those.
-- The main engineering step genuinely local to this notebook is deriving
-  `issue_year` (and optionally a coarser `vintage` cohort grouping) from
-  `issue_d`, needed for §5's partition and the TTC/PIT decision.
-- **WOE transformation itself is the feature engineering step for every
-  categorical/binned-numeric candidate** — in scorecard modeling, WOE
-  encoding *is* the engineered feature, not a preprocessing detail before
-  "real" feature engineering. Say this explicitly in-notebook: it's a
-  technique-justification point (§3 rule 4) — WOE over one-hot or target
-  encoding, because WOE bins enforce monotonicity, handle missing/rare
-  categories via a documented rule, and produce directly interpretable
-  coefficients (each WOE-encoded feature's logistic coefficient is
-  approximately its own weight of evidence), which one-hot/target encoding
-  do not give as cleanly.
-- Interaction terms or polynomial features are **out of scope** —
-  scorecards are conventionally additive/linear on WOE inputs specifically
-  for interpretability and regulatory explainability (KB §8.1's own
-  framing); introducing interactions would need its own justification cell
-  and isn't recommended for a first build.
-
-**Feature selection — a real, separate step, after WOE/IV, before the final
-fit:**
-1. **IV threshold filter** — drop candidates below the conventional "not
-   predictive" floor (IV < 0.02) after live-computing IV for every
-   shortlisted field on train; keep the 0.02–0.5 band; flag (not
-   automatically drop) anything ≥0.5 for the same leakage-review reasoning
-   already applied to `grade`/`int_rate`.
-2. **Multicollinearity check among WOE-transformed features** — a
-   correlation matrix (or VIF) on train's WOE-encoded candidate set before
-   the final logistic fit; document any pair/cluster above a stated
-   threshold (e.g. |r| > 0.7) and how it was resolved (drop one, combine,
-   or keep with a stated rationale).
-3. **Stepwise/backward elimination — optional refinement**, not required for
-   a first working model; flag as a follow-on if the direct IV-filtered set
-   already produces a clean, monotonic, validated model.
-
-Both feature engineering and feature selection get their own numbered
-sections in §9's cell-by-cell plan — they are not folded into "WOE/IV."
+`grade` IV = 0.4806 (live-verified this session, train 2013–2016) — close
+to source 7/KB's own convention-based 0.47; treat as the sanity-check
+target for the notebook's own re-derivation, not a value to hard-code.
 
 ---
 
-## 8. Model persistence — saving the model itself, not just its output table
+## 10. Grade/int_rate near-definitional decision (unchanged from v2)
 
-An earlier draft of this document only planned to write a **calibrated-PD-
-by-grade lookup table** to `ASSETS_TABLES` — sufficient for a human reading
-the notebook, but not sufficient for another notebook or agent to actually
-*apply* the fitted model to new data (e.g. a future reject-inference
-follow-on, or re-scoring). Both are needed:
-
-- **For evidence-in-code / human readability (`ASSETS_TABLES`, as before):**
-  the WOE bin-edge table, the IV table, the logistic regression coefficient
-  table, and the calibrated-PD-by-grade table — all CSVs, all printed live.
-- **For actual reuse (new, this correction): the fitted model object
-  itself**, serialized via `joblib`, written to
-  `phase1_pd_modeling/01_lendingclub/models/pd_scorecard_logit_v1.joblib`.
-  Alongside it, a small model card (`pd_scorecard_logit_v1_card.json` or a
-  markdown cell reproducing the same content) recording: exact feature list
-  and WOE bin edges used, the train/validation/test/OOT split definition
-  (§5) and random seed, library versions (`scikit-learn`, `pandas`, `numpy`
-  — print `__version__` live), the fit date, and the test/OOT AUC achieved.
-  This is what lets Phase 4 (or a reject-inference follow-on) actually score
-  new rows instead of only reading a static lookup table.
-- **Versioning convention:** suffix with `_v1`; a future re-fit (e.g. after
-  reject inference) becomes `_v2`, never an overwrite — keeps the model
-  history auditable the same way git keeps the notebook history auditable.
+Option A (keep both, document why) vs. Option B (engineer around them,
+`dti` as the leading mechanistic alternative) — **[TJ]** cell, citing live
+IV. Source 7's caution against "over-dependence on one dominant variable"
+is the additional citation for why this decision matters, not just KB's own
+IV-suspicion threshold.
 
 ---
 
-## 9. Notebook structure — cell-by-cell plan
+## 11. KGB scorecard fit & baseline validation (`01_pd_kgb_scorecard.ipynb`, close-out of the accepts-only build)
 
-Following this project's own per-step convention (intro → cell-map table →
-repeated [markdown "why/how/**Answers:**" → code → markdown
-"**Result**/**Next**"] → section closers). Updated from the earlier draft to
-add the feature-engineering, feature-selection, and model-persistence
-sections (§7, §8) as their own numbered steps, and to fold in the
-technique-justification cells (§3 rule 4) at every step that needs one
-(marked **[TJ]** below):
-
-1. **Intro + scope** — title, status line, what this notebook covers, where
-   it fits, explicit note that reject inference is out of scope.
-2. **Cell-map table** — one row per numbered step below.
-3. **Section: population & connection** — connect via direct
-   `duckdb.connect(DUCKDB_FILE, read_only=True)`; restate and re-verify
-   `windowed`'s row count and bad rate live; confirm `sub_grade` exists
-   (already live-verified pre-build, re-verify in-notebook per evidence-in-
-   code); cast `VARCHAR` numeric fields explicitly (§4).
-4. **Section: feature shortlist & provenance** — restate the candidate
-   feature set from the parquet's 31 columns plus the field dictionary;
-   decide the `revol_util`/`emp_length` carry-overs from Phase 0.
-5. **Section: feature engineering** — derive `issue_year`/vintage cohort
-   from `issue_d`; state explicitly that transform-level engineering was
-   done upstream in Phase 0 and WOE is this notebook's engineering step
-   (§7) — **[TJ]** WOE vs. one-hot/target encoding.
-6. **Section: train/validation/test/OOT split** — implement §5's split;
-   print exact row counts/bad rates per split live — **[TJ]** four-way vs.
-   three-way split (§5).
-7. **Section: fine classing** — ~20 bins per numeric candidate, fit on train.
-8. **Section: coarse classing** — collapse to ≤8 classes; monotonicity,
-   >2%-population, >50-bads checks as live asserts — **[TJ]** manual
-   rule-based coarse classing vs. an automated optimal-binning library
-   (e.g. `optbinning`) — state why manual (transparency/auditability
-   matches this project's evidence-in-code ethos) is the choice here.
-9. **Section: WOE/IV** — WOE transform + IV table on train, applied
-   (not refit) to validation/test/OOT; compared against the 0.4806
-   grade-IV sanity check from pre-build scouting.
-10. **Section: feature selection** — IV threshold filter, multicollinearity
-    check among WOE features, optional stepwise note (§7).
-11. **Section: grade/int_rate decision** — the explicit Option A/B
-    **[TJ]** markdown decision cell from §6, citing live IV numbers.
-12. **Section: MRS validation** — grade concentration, monotonicity (A→G,
-    A1→A5 within grade), AUC(grade-alone) vs. AUC(full model).
-13. **Section: TTC/PIT decision** — **[TJ]** explicit markdown cell, citing
-    live PSI, deciding `issue_year`'s role (feature vs. monitoring-only).
-14. **Section: scorecard fit** — logistic regression on the selected
-    WOE-transformed feature set, fit on train — **[TJ]** logistic regression
-    vs. a tree-based/GBM alternative (interpretability, WOE-linearity,
-    and regulatory-explainability requirements per KB §8.1 are the reasons
-    to stay with logistic regression for this build).
-15. **Section: validation against baseline** — AUC/KS with a bootstrap CI on
-    test **and** OOT separately, compared against each other (in-time vs.
-    out-of-time gap is itself a finding) — no external baseline to compare
-    against per §6's correction.
-16. **Section: calibration** — **[TJ]** Method 1 (log-odds linear
-    regression) vs. isotonic/Platt scaling, against the population's own
-    live-computed bad rate; per-vintage representativeness check.
-17. **Section (optional): PDO scaling** — only after step 15 validates.
-18. **Section: model persistence** — save the fitted model object, WOE bin
-    edges, and model card per §8; write the calibrated-PD-by-grade table to
-    `ASSETS_TABLES`.
-19. **Section: close-out** — explicit note that reject inference is the
-    natural next follow-on, not part of this notebook; hand-off note for
-    Phase 2 (LGD) on which fields it will need directly from `windowed`.
+- Logistic regression on the WOE-transformed, selected feature set (§8),
+  fit on train — **[TJ]** logistic regression vs. tree/GBM (interpretability
+  + WOE-linearity + regulatory explainability, per KB §8.1 and every source
+  in §0 that states a technique preference at all).
+- **Baseline — corrected in v2, restated here:** no verified prior baseline
+  exists in this repo. Live re-derivation this session (multiple
+  feature/split variants) consistently landed at **0.68–0.69 AUC**, not the
+  fabricated [0.695, 0.698] a v1 draft cited from a skill reference file
+  without re-deriving it. Whatever this notebook's own train/test/OOT split
+  produces *is* the project's real baseline — report with a bootstrap CI on
+  **both** test and OOT, and treat a large in-time/OOT gap as a finding
+  (possibly connected to §6's immaturity check), not noise to average away.
 
 ---
 
-## 10. Checklist — what is built vs. what is left
+## 12. Reject inference — `02_pd_reject_inference_kigb.ipynb` (new: brought into Phase 1's actual scope)
 
-**Built: nothing.** Every line below is a "to do," not a status report.
+Every source in §0 that covers reject inference (1, 2, 3, 5, 6, 8) treats it
+as a real step with real limitations, not a checkbox. This section is
+written accordingly — including the parts where the honest answer is "this
+dataset makes that harder than the textbook version."
 
-- [x] Confirm notebook location — §2, resolved (`phase1_pd_modeling/`).
-- [x] Confirm `sub_grade`'s presence/completeness in `windowed` — §4,
-  live-verified pre-build.
-- [x] Re-derive the baseline AUC live and correct this document — §6,
-  done pre-build; the corrected framing above is what the notebook itself
-  must still reproduce in-notebook (pre-build scouting is not a substitute
-  for the notebook's own evidence-in-code cells).
-- [ ] Create the notebook file, following this plan's cell structure (§9),
-  one section at a time, shown to Devesh before each is committed.
-- [ ] Implement the train/validation/test/OOT split (§5) with printed,
-  live row counts and bad rates per split.
-- [ ] Resolve the `revol_util` capping and `emp_length` numeric-parsing
-  carry-overs from Phase 0 (§9 step 4).
-- [ ] Feature engineering section — derive `issue_year`/vintage (§7/§9 step 5).
-- [ ] Feature selection section — IV filter + multicollinearity check
-  (§7/§9 step 10).
-- [ ] Make and document the grade/int_rate near-definitional decision
-  (§6/§9 step 11), with its technique-justification cell.
-- [ ] Make and document the TTC/PIT decision (§6/§9 step 13), with its
-  technique-justification cell.
-- [ ] Fit and validate the scorecard on test and OOT separately.
-- [ ] Calibrate (pooled default, per-vintage check), with its
-  technique-justification cell.
-- [ ] Save the fitted model object + model card + calibrated-PD-by-grade
-  table (§8/§9 step 18) — not just the lookup table.
-- [ ] Explicitly flag reject inference as a follow-on, not done here.
-- [ ] Run this project's standard production-readiness audit (0 errors,
-  every markdown claim evidenced, unique cell ids, assets present on disk).
-- [ ] Commit **only** the new notebook file (and its `models/` output) —
-  verify staged files with `git diff --cached --name-only`, never
-  `git add -A`, never push — and remember `docs/` itself is currently
-  gitignored, so this build-plan file won't travel to GitHub until that's
-  resolved separately.
+**Step-by-step (SAS 3554-2019's KGB→KIGB shape, source 2, adapted to this
+project's actual field constraints, §4):**
+
+1. **Load the rejected file** (27,648,741 rows) via DuckDB's CSV reader
+   (not pandas — the earlier live OOM-kill of a full-file pandas load this
+   session is itself evidence for why: cite it as a live technical note).
+2. **Exclude policy rejects** — filter to `Policy Code = 2` (88,129 rows,
+   live-counted) as the working "scored, not policy-rejected" population,
+   **after confirming live** (via `Risk_Score`'s completeness/distribution
+   within each code) that code `2` is actually the scored population and
+   not something else — do not assume the mapping from this document.
+3. **Map overlapping fields only**: `Risk_Score` (proxy for
+   `fico_range_low`/`fico_range_high` — state explicitly that this is a
+   proxy, not confirmed to be on the same scale, and check its range/
+   distribution against `fico_range_low`'s known range as a sanity check),
+   `Debt-To-Income Ratio` → `dti`, `Amount Requested` → `loan_amnt`
+   (proxy — requested, not funded), `State` → `addr_state`, `Employment
+   Length` → `emp_length`. **`grade`, `int_rate`, `sub_grade`, `purpose`,
+   `home_ownership` have no reject-file equivalent — any KGB model term
+   built on them cannot be scored on rejects at all.** This is the
+   practical reason the grade/int_rate decision (§10) matters twice: if
+   Option A (keep grade/int_rate) is chosen for the main KGB model, a
+   **separate, overlap-only sub-model** (fit on train using only the fields
+   §4 confirms exist on both populations) is what actually scores the
+   rejects — state this explicitly, it is not optional plumbing.
+4. **Score rejects with the overlap-only sub-model.**
+5. **Reject-inference technique — [TJ] fuzzy augmentation, chosen over
+   parceling and hard-cutoff** (sources 3, 5, 8 all describe these three;
+   source 8's own conclusion — fuzzy augmentation is "believed superior"
+   because it weights rather than randomly assigns — is the cited
+   rationale): each scored reject becomes two weighted synthetic
+   observations (good/bad) per its predicted probability, rather than one
+   randomly-labeled record (parceling) or a single hard label (cutoff).
+6. **Assemble the KIGB dataset**: accepts (§7's train split) + weighted
+   synthetic reject records.
+7. **Re-derive WOE/IV on KIGB** using the **same bin edges fit on the KGB
+   train set** (source 5's MathWorks workflow: "apply identical binning
+   rules from the base model to ensure consistency") — do not refit bins on
+   the combined population.
+8. **Refit logistic regression on KIGB** (overlap-only feature set, per
+   step 3's constraint).
+9. **Validate reject inference itself before trusting the KIGB model**
+   (KB §8.2's own checks, echoed by source 6's skepticism): inferred bad
+   rate among rejects should be **higher** than the KGB population's bad
+   rate and **monotonically declining** by score band — if it isn't, the
+   inference is broken and should not be used, not silently accepted.
+10. **Compare KGB vs. KIGB** on the **overlap-only feature set for both**
+    (an apples-to-apples comparison — comparing a full-feature KGB against
+    an overlap-only KIGB would confound "reject inference helped" with
+    "fewer features hurt"): AUC/KS/Gini on test and OOT, a swap-set-style
+    comparison of which loans each model would approve differently (source
+    6's technique), per KB §8.2's own validation rule (post-RI variable
+    strength should increase, not decrease).
+11. **Honest expectation-setting, cited directly from source 6**: Huang &
+    Scott's own empirical finding is that reject inference is often **not**
+    the main driver of scorecard performance changes — this section should
+    report whatever the comparison in step 10 actually shows, including a
+    negative or negligible result, rather than assuming reject inference
+    must improve the model because the textbook says it addresses a real
+    bias.
+
+**What this notebook does NOT attempt**: the credit-bureau reject-inference
+method (source 8) — this project has no external bureau data on rejected
+applicants — and augmentation using `grade`/`int_rate`-dependent terms,
+per step 3's field-overlap constraint.
 
 ---
 
-## 11. Past → present → future
+## 13. Master Rating Scale validation
 
-- **Past (input to this phase):** Phase 0 complete — ingestion, master EDA
-  (151-field governance ledger), cleaning (31-column model-ready parquet,
-  26 chosen fields, 66 deferred). Audited and confirmed ready
-  (`docs/phase_0_report.md`).
-- **Present (this document):** the corrected, self-sufficient plan for
-  Phase 1. Location resolved, baseline corrected, and three real gaps closed
-  from the earlier draft: feature engineering and feature selection now have
-  their own explicit steps (§7/§9), every technique choice gets a
-  justification cell (§3 rule 4), and the fitted model itself gets
-  persisted, not just its output table (§8).
-- **Future (what Phase 1 hands to Phase 2+):** a working, calibrated,
-  *reusable* PD model (an actual saved model object, not only a lookup
-  table) and a validated grade-based rating scale. Phase 2 (LGD, unsecured)
-  will need direct access to `windowed`'s post-origination fields
-  (`recoveries`, `total_pymnt`, etc.) that never entered the PD parquet by
-  design. Reject inference remains an explicit, named open follow-on.
+Unchanged from v2 — grade concentration, monotonicity (A→G, A1→A5),
+AUC(grade-alone) vs. AUC(full model). **New decision needed**: run this
+against the KGB model, the KIGB model, or both — state the choice
+explicitly once §12 is complete; if §12 §11's comparison shows KIGB
+materially different, MRS validation should use whichever model is
+designated the production candidate, not both by default.
 
 ---
 
-## 12. References
+## 14. TTC/PIT decision
 
-- `docs/phase_0_report.md` — full Phase 0 audit (field roles, ledger,
-  carried-over open items).
-- `docs/Peaks2Tails_Knowledge_Base.md` §8 (PD account-level), §9 (PD
-  segment-level), §10 (calibration & rating philosophy), §17 (behavioral vs.
-  application scorecards).
-- `credit-risk-curriculum` skill, reference files `03-pd-account-level-
-  scorecard.md` and `04-pd-calibration-and-rating-philosophy.md` — full
-  bridge detail this document condenses; re-read both in full when actually
-  building. **Note their known staleness**: stale `nb_setup.py` mandate
-  (§3), stale `04_modeling/` file path (§2), and an unverified baseline AUC
-  figure that does not reproduce (§6) — cross-check any number pulled from
-  these files against this repo's own live output before trusting it.
+Unchanged mechanics from v2 (does `issue_year`/drift enter as a feature vs.
+monitoring-only) — **now also informed by §6's vintage-curve finding**, not
+just the `int_rate` PSI number alone. **[TJ]** cell citing both.
+
+---
+
+## 15. Calibration
+
+Unchanged from v2 — Method 1 (log-odds regression) to the live bad rate
+(~20.5%, re-verify), pooled default with per-vintage check — **[TJ]** Method
+1 vs. isotonic/Platt scaling.
+
+---
+
+## 16. Scaling to points, and adverse-action reason codes — new section
+
+No prior version of this plan had this step at all, despite it being a
+named, concrete step in three of the ten sources (2, 4, and implicitly the
+KB's own PDO mention) — and despite adverse-action reason codes being a
+genuine US lending regulatory requirement (ECOA), not an optional
+nice-to-have, for any scorecard framed as decisioning real applicants:
+
+- **PDO scaling** (Points to Double the Odds): `Score = Offset + Factor ×
+  ln(Odds)`. Source 2's own illustrative parameters (base score 200, base
+  odds 50:1, PDO 20) are **an example, not a value to copy** — pick and
+  document this project's own base score/base odds/PDO choice in a
+  **[TJ]** cell (a common alternative convention is base score 600 at
+  odds 50:1, PDO 20 — either is defensible; state the choice and why).
+- **Reason codes**: for each scored loan, identify which WOE-binned
+  characteristics contributed most negatively to the score (the standard
+  "top N adverse factors" logic every source in this section describes) —
+  implement as a live-computed table for a sample of declined-range scores,
+  not just asserted as a feature the model "could" support.
+- This section only runs once §11 (or §12, if KIGB is the production
+  choice) has a validated, calibrated model — it is presentation of an
+  already-fit model, not new modeling.
+
+---
+
+## 17. Validation suite — first-pass here, formal treatment in Phase 5
+
+**Division of labor, stated explicitly to avoid duplication drift between
+this notebook and the dedicated Phase 5 validation notebook:**
+
+| Here (Phase 1, in-notebook) | Phase 5 (dedicated validation notebook) |
+|---|---|
+| AUC/KS/Gini on test and OOT, bootstrap CI, immediately after fitting — proves the model this notebook just built actually works, per evidence-in-code | Full discriminatory-power suite (CAP, rank correlations), re-derived independently |
+| A single PSI check reusing `int_rate`'s known drift pattern, applied to the fitted score (development vs. OOT) | Full PSI/CSI stability suite, SR 11-7 framing, ongoing-monitoring cadence |
+| Hosmer-Lemeshow/Brier only if calibration (§15) needs a pass/fail check to proceed | Full calibration-testing section |
+
+This notebook's validation exists to justify moving on to §16/§18 — it is
+not a substitute for Phase 5's dedicated pass.
+
+---
+
+## 18. Model persistence (unchanged from v2, restated)
+
+- `ASSETS_TABLES`: WOE bin-edge table, IV table, coefficient table,
+  reason-code table (§16), calibrated-PD-by-grade table.
+- **Fitted model objects** (both, if §12 produces a genuinely different
+  KIGB model): `models/pd_scorecard_kgb_v1.joblib`,
+  `models/pd_scorecard_kigb_v1.joblib`, each with a model card (features,
+  WOE bins, split definition, library versions, fit date, test/OOT AUC).
+  Versioned `_v1`/`_v2`, never overwritten.
+
+---
+
+## 19. Governance note (new, brief — context, not a project deliverable)
+
+Source 2's own closing section describes a 3-team model lifecycle (Model
+Development / Model Validation / Model Risk Management) governing any real
+bank scorecard's ongoing life. **State this in the notebook's closing
+markdown as context, not as a structure this solo portfolio project
+implements** — exactly the same treatment Phase 5's plan already gives
+SR 11-7's three lines of defense. Worth one paragraph so a reader
+understands what "production" would additionally require beyond this
+notebook's own scope.
+
+---
+
+## 20. Close-out / hand-off to Phase 2
+
+Unchanged from v2: explicit note on which fields Phase 2 (LGD) needs
+directly from `windowed`, not the parquet; reject inference's actual
+outcome (§12) is now resolved rather than a named future gap, so this
+section states what was actually found, not what's still deferred.
+
+---
+
+## Checklist — what is built vs. what is left
+
+**Built: nothing.**
+
+- [x] 10 external sources identified, fetched, and cited against specific
+  sections (§0).
+- [x] Rejected file live-profiled: 27,648,741 rows, 9 columns, Policy Code
+  distribution, field-overlap constraint identified (§4).
+- [x] Vintage-curve data availability confirmed live (`last_pymnt_d`
+  coverage 99.3% on charged-off loans) (§4, §6).
+- [x] Two-notebook structure decided and stated explicitly (§1) — **pending
+  Devesh's sign-off**, since it changes v2's single-notebook assumption.
+- [ ] Confirm `Policy Code = 2`'s actual meaning live (§4, §12 step 2)
+  before building any reject-inference logic on top of that assumption.
+- [ ] Build `01_pd_kgb_scorecard.ipynb` per §5–§11, §13–§18, section by
+  section, shown to Devesh before each is committed.
+- [ ] Build `02_pd_reject_inference_kigb.ipynb` per §12, including the
+  overlap-only sub-model and the honest KGB-vs-KIGB comparison.
+- [ ] Vintage/cohort curve built and its finding fed into §7's OOT-validity
+  check and §14's TTC/PIT decision.
+- [ ] Reason codes and PDO scaling implemented (§16) — not previously
+  planned at all before this revision.
+- [ ] Every **[TJ]**-marked decision has its markdown cell, evidenced.
+- [ ] Standard production-readiness audit on both notebooks before calling
+  Phase 1 done.
+- [ ] Commit only the new notebook/model files — same git discipline as
+  every prior phase (force-add needed while `docs/`/new folders remain
+  outside whatever `.gitignore` currently allows — verify per-folder before
+  committing, don't assume).
+
+---
+
+## References
+
+- `docs/phase_0_report.md`, `docs/Peaks2Tails_Knowledge_Base.md` §8–§10,
+  §17 — unchanged from v2.
+- `credit-risk-curriculum` skill, reference files 03/04 — unchanged from
+  v2, same staleness caveats apply.
+- §0's 10 external sources — the new grounding for this revision;
+  re-consult the original source, not this summary, before implementing any
+  technique this document only sketches.
 
 ---
 
 ## Changelog
 
-- **v2 (this revision):** location resolved (§2); baseline AUC corrected
-  after live re-derivation exposed it as unreproducible (§6); added data
-  partition detail with a four-way train/validation/test/OOT split (§5);
-  added feature engineering (§7) and feature selection (§7) as explicit,
-  separate steps; added a standing technique-justification rule (§3 rule 4)
-  applied throughout §6/§9; added model persistence — saving the fitted
-  model object itself, not just its output table (§8). Cell-by-cell plan
-  (§9) renumbered from 16 to 19 steps to fit these additions.
-- **v1:** initial draft, written immediately after Phase 0's audit.
+- **v3 (this revision)**: rebuilt against 10 external real-world sources
+  (§0) chosen to mirror actual bank practice. Added: event/window
+  restatement (§5); vintage/cohort default-timing analysis with an explicit,
+  evidenced scope boundary against full roll-rate transition matrices (§6);
+  reject inference brought into Phase 1's actual scope as its own notebook,
+  including live profiling of the 27.6M-row rejected file and its severe
+  field-overlap constraint (§12); scaling-to-points and adverse-action
+  reason codes (§16); explicit division of labor between this notebook's
+  validation and Phase 5's (§17); a governance-context note (§19). Notebook
+  structure changed from one notebook to two (§1) as a direct consequence
+  of bringing reject inference in-scope — flagged for sign-off.
+- **v2**: location resolved; unreproducible baseline AUC corrected after
+  live re-derivation; added data-partition detail (train/validation/test/
+  OOT); added feature engineering/selection as explicit steps; added
+  technique-justification standing rule; added model persistence (fitted
+  object, not just output table).
+- **v1**: initial draft, written immediately after Phase 0's audit.
