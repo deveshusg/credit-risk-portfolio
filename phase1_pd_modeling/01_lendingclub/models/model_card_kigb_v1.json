@@ -26,7 +26,7 @@
   ],
   "reject_sample_size": 98127,
   "scored_reject_population_total": 9151111,
-  "policy_code_hypothesis": "REJECTED -- Risk_Score completeness is lower for Policy Code=2 (18.13%) than Policy Code=0 (33.15%), the opposite of the plan's assumed mapping. 'Scored' redefined as Risk_Score IS NOT NULL.",
+  "policy_code_hypothesis": "REJECTED -- Risk_Score completeness is lower for Policy Code=2 (18.13%) than Policy Code=0 (33.15%), the opposite of the initially assumed mapping. 'Scored' redefined as Risk_Score IS NOT NULL.",
   "library_versions": {
     "sklearn": "1.7.2",
     "pandas": "2.3.3",

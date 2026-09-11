@@ -2,7 +2,6 @@
   "model_name": "pd_scorecard_kgb_v1",
   "fit_date": "2026-09-11",
   "features": [
-    "int_rate_woe",
     "fico_range_low_woe",
     "acc_open_past_24mths_woe",
     "dti_woe",
@@ -16,53 +15,54 @@
     "mo_sin_old_rev_tl_op_woe",
     "term_woe",
     "verification_status_woe",
-    "home_ownership_woe"
+    "home_ownership_woe",
+    "grade_woe"
   ],
   "n_features": 15,
-  "excluded_near_definitional": "grade (section 10: kept int_rate instead, corr=0.9578)",
+  "excluded_near_definitional": "int_rate (section 10: kept grade instead, corr=0.9578)",
   "train_rows": 615934,
-  "test_auc": 0.7155,
-  "oot_auc": 0.7009,
+  "test_auc": 0.716,
+  "oot_auc": 0.7004,
   "performance": [
     {
       "split": "train",
       "n": 615934,
       "bad_rate": 0.2009,
-      "auc": 0.7158,
-      "gini": 0.4317,
-      "ks": 0.3127,
-      "auc_ci_lo": 0.7142,
-      "auc_ci_hi": 0.7176
+      "auc": 0.7168,
+      "gini": 0.4336,
+      "ks": 0.314,
+      "auc_ci_lo": 0.7152,
+      "auc_ci_hi": 0.7185
     },
     {
       "split": "validation",
       "n": 205312,
       "bad_rate": 0.2009,
-      "auc": 0.715,
-      "gini": 0.4299,
-      "ks": 0.3103,
-      "auc_ci_lo": 0.7121,
-      "auc_ci_hi": 0.7177
+      "auc": 0.7157,
+      "gini": 0.4314,
+      "ks": 0.3121,
+      "auc_ci_lo": 0.7128,
+      "auc_ci_hi": 0.7182
     },
     {
       "split": "test",
       "n": 205312,
       "bad_rate": 0.2009,
-      "auc": 0.7155,
-      "gini": 0.431,
-      "ks": 0.3108,
-      "auc_ci_lo": 0.7126,
-      "auc_ci_hi": 0.7181
+      "auc": 0.716,
+      "gini": 0.432,
+      "ks": 0.3119,
+      "auc_ci_lo": 0.713,
+      "auc_ci_hi": 0.7187
     },
     {
       "split": "OOT",
       "n": 169321,
       "bad_rate": 0.2313,
-      "auc": 0.7009,
-      "gini": 0.4017,
-      "ks": 0.2904,
-      "auc_ci_lo": 0.698,
-      "auc_ci_hi": 0.7036
+      "auc": 0.7004,
+      "gini": 0.4008,
+      "ks": 0.2907,
+      "auc_ci_lo": 0.6976,
+      "auc_ci_hi": 0.7032
     }
   ],
   "scaling": {
@@ -73,13 +73,13 @@
     "offset": 383.9036
   },
   "hosmer_lemeshow": {
-    "statistic": 20.867,
+    "statistic": 21.978,
     "dof": 8,
-    "p_value": 0.0075
+    "p_value": 0.005
   },
-  "brier_score_test": 0.1446,
+  "brier_score_test": 0.1445,
   "psi_int_rate_train_vs_oot": 0.0398,
-  "psi_score_train_vs_oot": 0.0021,
+  "psi_score_train_vs_oot": 0.0061,
   "library_versions": {
     "sklearn": "1.7.2",
     "pandas": "2.3.3",
