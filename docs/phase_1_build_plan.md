@@ -129,9 +129,11 @@ folder:**
 | `01_pd_kgb_scorecard.ipynb` | §5–§11, §13–§18: accepts-only scorecard, from partition through persistence |
 | `02_pd_reject_inference_kigb.ipynb` | §12: loads the rejected-applicant file, performs reject inference, builds and validates the KIGB scorecard against the KGB baseline |
 
-This is a change from v2's single-notebook assumption — flagged here for
-Devesh's sign-off before either notebook is created, same as any other
-structural decision in this project.
+This is a change from v2's single-notebook assumption — **confirmed with
+Devesh**: build both notebooks, `01_pd_kgb_scorecard.ipynb` first
+(§5–§11, §13–§18), then `02_pd_reject_inference_kigb.ipynb` (§12), and the
+baseline AUC will be reassessed live rather than assumed, exactly as §11
+already describes.
 
 **Why PD first, specifically, and why now:** unchanged from v2 — see the
 prior version's §1 reasoning (LGD/EAD need PD-adjacent concepts;
@@ -1035,8 +1037,9 @@ section states what was actually found, not what's still deferred.
   distribution, field-overlap constraint identified (§4).
 - [x] Vintage-curve data availability confirmed live (`last_pymnt_d`
   coverage 99.3% on charged-off loans) (§4, §6).
-- [x] Two-notebook structure decided and stated explicitly (§1) — **pending
-  Devesh's sign-off**, since it changes v2's single-notebook assumption.
+- [x] Two-notebook structure decided, stated explicitly, and **confirmed
+  by Devesh** (§1) — build order is `01_pd_kgb_scorecard.ipynb` first,
+  then `02_pd_reject_inference_kigb.ipynb`.
 - [x] Direct primary-source read of the Peaks2Tails course files for all
   five PD-scorecard topics (WOE binning/variable selection, logistic
   regression/scorecard/cutoff, reject inference, vintage/roll-rate, model
