@@ -1,0 +1,27 @@
+{
+  "model_name": "pd_segmented_institutional_scorecard_v1",
+  "model_family": "Dual Segmented Monotonic Logistic Regression",
+  "segments": [
+    "36-Month Retail Loans",
+    "60-Month Retail Loans"
+  ],
+  "governance_compliance": [
+    "Federal Reserve SR 11-7",
+    "OCC 2011-12",
+    "ECOA Regulation B",
+    "Basel II/III IRB"
+  ],
+  "master_scaling": {
+    "base_score": 600,
+    "base_odds": 20,
+    "pdo": 50,
+    "factor": 72.1348,
+    "offset": 383.9036
+  },
+  "test_blended_auc": 0.7165,
+  "oot_blended_auc": 0.7012,
+  "test_blended_ks": 0.3133,
+  "champion_baseline_test_auc": 0.716,
+  "champion_baseline_oot_auc": 0.7004,
+  "production_recommendation": "DEPLOY AS PRODUCTION CHAMPION FOR APPLICATION UNDERWRITING"
+}

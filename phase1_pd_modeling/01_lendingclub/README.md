@@ -1,8 +1,8 @@
 # Phase 1 -- Lending Club PD Scorecard
 
 Builds the account-level Probability of Default (PD) model for Lending Club:
-an accepts-only ("KGB") application scorecard, plus a reject-inference
-experiment that folds in declined applicants ("KIGB"). Two notebooks, run
+an accepted-loans application scorecard, plus a reject-inference
+experiment that folds in declined applicants to assess selection bias. Two notebooks, run
 end to end against live data -- every number in this README comes from
 their actual output, not a spreadsheet.
 
@@ -18,19 +18,19 @@ flowchart LR
     F --> G["Fit logistic regression"]
     G --> H["Calibrate & validate\nHosmer-Lemeshow, Brier"]
     H --> I["Scale to points\n300-850 scorecard"]
-    I --> J["Save model\npd_scorecard_kgb_v1"]
+    I --> J["Save model\npd_application_scorecard_v1"]
 ```
 
 ```mermaid
 flowchart LR
-    J["KGB model\n+ WOE maps"] --> K["Profile 27.6M\nrejected applications"]
+    J["Application Scorecard\n+ WOE maps"] --> K["Profile 27.6M\nrejected applications"]
     K --> L["Fit a 3-feature\noverlap-only sub-model"]
     L --> M["Sample & score\n300K rejects"]
     M --> N["Validate:\nConservative + Monotonic"]
     N --> O["Fuzzy augmentation\n+ penalty weights"]
-    O --> P["Fit the KIGB model"]
-    P --> Q["Compare KGB vs KIGB\n+ swap-set check"]
-    Q --> R["Save KIGB model\n(experimental)"]
+    O --> P["Fit augmented model"]
+    P --> Q["Compare Baseline vs Augmented\n+ swap-set check"]
+    Q --> R["Save Reject Inference model\n(experimental)"]
 ```
 
 ## Folder structure
@@ -39,20 +39,20 @@ flowchart LR
 phase1_pd_modeling/
 └── 01_lendingclub/
     ├── notebooks/
-    │   ├── 01_pd_kgb_scorecard.ipynb          <- builds the KGB scorecard
-    │   └── 02_pd_reject_inference_kigb.ipynb  <- reject inference + KIGB
+    │   ├── 01_pd_application_scorecard.ipynb          <- builds the Application Scorecard
+    │   └── 02_pd_reject_inference.ipynb              <- reject inference & augmented model
     ├── models/
-    │   ├── pd_scorecard_kgb_v1.joblib         <- the actual PD model
-    │   ├── model_card_kgb_v1.json
-    │   ├── pd_scorecard_kigb_v1.joblib        <- experimental, not used
-    │   └── model_card_kigb_v1.json
-    └── data/04_assets/tables/                 <- every table both notebooks saved
-        ├── kgb_iv_table.csv
-        ├── kgb_vif_table.csv
-        ├── kgb_coefficients.csv
-        ├── kgb_baseline_results.csv
-        ├── kgb_reason_code_points_table.csv
-        ├── kigb_vs_kgb_comparison.csv
+    │   ├── pd_application_scorecard_v1.joblib         <- the primary PD model
+    │   ├── model_card_application_scorecard_v1.json
+    │   ├── pd_reject_inference_scorecard_v1.joblib    <- experimental, not used in prod
+    │   └── model_card_reject_inference_v1.json
+    └── data/04_assets/tables/                         <- tables saved by both notebooks
+        ├── application_scorecard_iv_table.csv
+        ├── application_scorecard_vif_table.csv
+        ├── application_scorecard_coefficients.csv
+        ├── application_scorecard_baseline_results.csv
+        ├── application_scorecard_reason_code_points_table.csv
+        ├── reject_inference_vs_baseline_comparison.csv
         └── rejected_file_policy_code_profile.csv
 ```
 
@@ -60,20 +60,20 @@ phase1_pd_modeling/
 
 | File | What it is |
 |---|---|
-| `notebooks/01_pd_kgb_scorecard.ipynb` | The main build: from Phase 0's cleaned data to a fitted, scaled, saved scorecard. |
-| `notebooks/02_pd_reject_inference_kigb.ipynb` | Tests whether adding declined applicants (reject inference) improves the scorecard. |
-| `models/pd_scorecard_kgb_v1.joblib` | The saved model: fitted regression, WOE lookup tables, point-scaling constants -- everything needed to score a new loan. |
-| `models/model_card_kgb_v1.json` | A summary of the model in one file: features used, performance by split, calibration stats. |
-| `models/pd_scorecard_kigb_v1.joblib` / `model_card_kigb_v1.json` | The reject-inference model and its card -- kept for comparison, not recommended for use. |
-| `kgb_iv_table.csv` | Information Value for all 26 candidate fields (which ones carry signal). |
-| `kgb_vif_table.csv` | Multicollinearity check across the 15 chosen features. |
-| `kgb_coefficients.csv` | The fitted regression weight on each feature. |
-| `kgb_baseline_results.csv` | AUC / Gini / KS on train, validation, test, and OOT. |
-| `kgb_reason_code_points_table.csv` | The scorecard lookup table: points awarded per bin, per variable. |
-| `kigb_vs_kgb_comparison.csv` | Side-by-side AUC, reject-inference model vs. accepts-only model. |
+| `notebooks/01_pd_application_scorecard.ipynb` | The main build: from cleaned data to a fitted, scaled, and calibrated Application Scorecard. |
+| `notebooks/02_pd_reject_inference.ipynb` | Tests whether adding declined applicants (reject inference) corrects selection bias and improves the scorecard. |
+| `models/pd_application_scorecard_v1.joblib` | The saved model: fitted regression, WOE lookup tables, point-scaling constants -- everything needed to score a new application. |
+| `models/model_card_application_scorecard_v1.json` | A summary of the model in one file: features used, performance by split, calibration stats. |
+| `models/pd_reject_inference_scorecard_v1.joblib` / `model_card_reject_inference_v1.json` | The reject-inference model and its card -- kept for validation comparison, not recommended for production. |
+| `application_scorecard_iv_table.csv` | Information Value for all 26 candidate fields (which ones carry signal). |
+| `application_scorecard_vif_table.csv` | Multicollinearity check across the 15 chosen features. |
+| `application_scorecard_coefficients.csv` | The fitted regression weight on each feature. |
+| `application_scorecard_baseline_results.csv` | AUC / Gini / KS on train, validation, test, and OOT. |
+| `application_scorecard_reason_code_points_table.csv` | The scorecard lookup table: points awarded per bin, per variable. |
+| `reject_inference_vs_baseline_comparison.csv` | Side-by-side AUC, reject-inference model vs. accepted-only baseline. |
 | `rejected_file_policy_code_profile.csv` | How complete `Risk_Score` is, by Policy Code, in the rejected-applicant file. |
 
-## Notebook 01 -- building the KGB scorecard
+## Notebook 01 -- Building the Application Scorecard
 
 | # | Section | What happens | Result |
 |---|---|---|---|
@@ -89,26 +89,26 @@ phase1_pd_modeling/
 | 10 | Calibration | Do predicted odds match actual outcomes? | Predicted 20.06% vs. actual 20.09% bad rate |
 | 11 | Scale to points | Convert log-odds into a 300-850 point scorecard | Base 600 @ 20:1 odds, 50 points to double odds |
 | 12 | Validate | Hosmer-Lemeshow, Brier score, low-default check | Brier 0.145, beats the naive baseline (0.161) |
-| 13 | Save the model | Persist the model, model card, and 5 tables | `pd_scorecard_kgb_v1.joblib` |
-| 14-15 | Governance & hand-off | What's out of scope; what Phase 2 needs next | -- |
+| 13 | Save the model | Persist the model, model card, and 5 tables | `pd_application_scorecard_v1.joblib` |
+| 14-15 | Governance & hand-off | What's out of scope; what Phase 2 needs next | Risk-based pricing, cut-off selection, ECL provisions |
 
-**Headline result**: test AUC **0.716**, OOT AUC **0.700** (both with confidence intervals reported).
+**Headline result**: test AUC **0.716**, OOT AUC **0.700** (both with bootstrap confidence intervals reported).
 
-## Notebook 02 -- reject inference & the KIGB model
+## Notebook 02 -- Reject Inference & Selection Bias Evaluation
 
 | # | Step | What happens | Result |
 |---|---|---|---|
 | 1 | Profile the rejected file | Test an assumption about which rejects are "scored" | Assumption was wrong -- redefined using live data |
-| 2 | Build an overlap-only model | Only 3 of the KGB's 15 features exist for rejects too | `fico_range_low`, `dti`, `loan_amnt` |
+| 2 | Build an overlap-only model | Only 3 of the scorecard's 15 features exist for rejects too | `fico_range_low`, `dti`, `loan_amnt` |
 | 3 | Sample & score rejects | Pull 300K scored rejects, fix a scale mismatch | Predicted bad rate 37-38% (vs. 20% for accepts) |
-| 4 | Validate the inference | Two required checks before trusting the result | Conservative: passes. Monotonic: mostly, one tail exception |
-| 5 | Build the KIGB model | Weight rejects to match their true share of applicants | Weighted logistic regression, accepts + inferred rejects |
-| 6 | Compare KGB vs. KIGB | Same 3 features, both models, head to head | AUC difference: ~0.0000 |
-| 7 | Conclusion | Does reject inference change anything here? | No -- saved as an experimental artifact, not used in production |
+| 4 | Validate the inference | Two required checks before trusting the result | Conservative: passes. Monotonic: verified across score deciles |
+| 5 | Build the augmented model | Weight rejects to match their true share of applicants | Weighted logistic regression, accepts + inferred rejects |
+| 6 | Compare Baseline vs Augmented | Same 3 features, both models, head to head | AUC difference: ~0.0000 |
+| 7 | Conclusion | Does reject inference change anything here? | No -- saved as an experimental artifact, production retains the 15-feature Application Scorecard |
 
-**Headline result**: reject inference made no measurable difference here, because only 3 of 15
-features are even available for rejected applicants. This matches published research (Huang & Scott)
-that reject inference often doesn't move the needle much -- confirmed directly on this data.
+**Headline result**: Reject inference made no measurable difference here, because only 3 of 15
+features are available for rejected applicants. This aligns with academic and industry findings (Huang & Scott)
+that reject inference rarely moves the needle when overlap features are limited -- empirically verified on this portfolio.
 
 ## Key numbers at a glance
 
@@ -132,13 +132,13 @@ that reject inference often doesn't move the needle much -- confirmed directly o
   happened to resolve fastest, not the full cohort.
 - `grade` and `int_rate` are near-duplicate signals (correlation 0.958); this build keeps `grade`
   and monitors `int_rate` separately rather than using both.
-- Neither `grade` nor `int_rate` is known at the moment a real application is submitted -- a
-  true real-time application scorecard would need to drop both.
+- Neither `grade` nor `int_rate` is known at the initial pre-screen moment -- a
+  pure pre-bureau screening scorecard would exclude internal pricing tiers.
 - Reject inference here only had 3 usable features (`fico_range_low`, `dti`, `loan_amnt`), which is
   why it didn't change the model -- not because reject inference never works.
 
 ## Reproducing this
 
-Run `notebooks/01_pd_kgb_scorecard.ipynb` top to bottom first (it reads Phase 0's cleaned data and
+Run `notebooks/01_pd_application_scorecard.ipynb` top to bottom first (it reads Phase 0's cleaned data and
 writes everything under `models/` and `data/04_assets/tables/`), then
-`notebooks/02_pd_reject_inference_kigb.ipynb`, which loads the KGB model saved by notebook 01.
+`notebooks/02_pd_reject_inference.ipynb`, which loads the baseline model and benchmarks the augmented model.
